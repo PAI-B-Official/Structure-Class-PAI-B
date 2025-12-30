@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Struktur Kelas PAI B 2025</title>
+
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'crimson-dark': '#0f0202',
+                        'crimson-main': '#8a0000',
+                        'crimson-glow': '#ff0000',
+                    },
+                    fontFamily: {
+                        'tech': ['Orbitron', 'sans-serif'],
+                        'body': ['Poppins', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050000;
+            color: #e5e5e5;
+            overflow-x: hidden;
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 50% 0%, #300000 0%, transparent 60%),
+                linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(20,0,0,1) 100%);
+        }
+
+        /* Glass Panel Style */
+        .glass-panel {
+            background: rgba(30, 5, 5, 0.4);
+            border: 1px solid rgba(255, 50, 50, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .glass-panel:hover::before {
+            left: 100%;
+        }
+
+        .glass-panel:hover {
+            border-color: #ff1f1f;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+            transform: translateY(-5px);
+            background: rgba(50, 0, 0, 0.6);
+        }
+
+        /* Slot Kosong Style */
+        .empty-slot {
+            border: 1px dashed rgba(150, 150, 150, 0.3);
+            background: rgba(20, 0, 0, 0.2);
+        }
+        .empty-slot:hover {
+            border-color: #ef4444;
+            border-style: solid;
+        }
+
+        /* --- TREE CSS (TREE LAYOUT) --- */
+        .tree {
+            display: flex;
+            justify-content: center;
+            padding-bottom: 50px;
+            width: max-content;
+            min-width: 100%;
+        }
+        .tree ul {
+            padding-top: 20px; 
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+        .tree li {
+            float: left; 
+            text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 20px 5px 0 5px;
+        }
+        
+        /* Tree Lines */
+        .tree li::before, .tree li::after {
+            content: '';
+            position: absolute; top: 0; right: 50%;
+            border-top: 2px solid #500000;
+            width: 50%; height: 20px;
+            transition: border-color 0.3s, filter 0.3s;
+        }
+        .tree li::after {
+            right: auto; left: 50%;
+            border-left: 2px solid #500000;
+        }
+        .tree li:only-child::after, .tree li:only-child::before {
+            display: none;
+        }
+        .tree li:only-child { padding-top: 0;}
+        .tree li:first-child::before, .tree li:last-child::after {
+            border: 0 none;
+        }
+        .tree li:last-child::before{
+            border-right: 2px solid #500000;
+            border-radius: 0 10px 0 0;
+        }
+        .tree li:first-child::after{
+            border-radius: 10px 0 0 0;
+        }
+        .tree ul ul::before{
+            content: '';
+            position: absolute; top: 0; left: 50%;
+            border-left: 2px solid #500000;
+            width: 0; height: 20px;
+            transition: border-color 0.3s, filter 0.3s;
+        }
+
+        /* Glowing Lines on Hover */
+        .tree li:hover::before, .tree li:hover::after, 
+        .tree li:hover > ul::before,
+        .tree li:hover > ul > li::before, .tree li:hover > ul > li::after {
+            border-color: #ff0000;
+            filter: drop-shadow(0 0 4px rgba(255, 0, 0, 0.8));
+        }
+
+        /* Container Scroll */
+        #structure-content-container, #executor-tree-container {
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 2rem;
+            scrollbar-width: thin;
+            scrollbar-color: #8a0000 #1a0505;
+        }
+
+        /* Modal Overlay */
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 0, 0, 0.95);
+            background-image: radial-gradient(circle at center, #200 0%, #000 100%);
+            z-index: 100;
+            overflow: auto;
+            transform: scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+        }
+        .fullscreen-overlay.open {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Edit Modal */
+        .edit-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .edit-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Avatar styling */
+        .avatar-glow {
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.2);
+            transition: 0.3s;
+        }
+        .glass-panel:hover .avatar-glow {
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.6);
+            border-color: #fff;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f0202; }
+        ::-webkit-scrollbar-thumb { background: #500; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #900; }
+        
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #ff0000;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="selection:bg-red-600 selection:text-white">
+
+    <!-- Background Particles/Glow -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-red-900/20 rounded-full blur-[120px] animate-pulse-slow"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-red-800/20 rounded-full blur-[120px] animate-pulse-slow" style="animation-delay: 2s;"></div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="pt-8 px-2 md:px-8 max-w-7xl mx-auto w-full min-h-screen flex flex-col justify-between">
+        
+        <section id="structure" class="relative">
+            <!-- Header -->
+            <div class="mb-8 text-center relative">
+                <div class="inline-block relative group cursor-default">
+                    <h2 class="text-3xl md:text-5xl font-tech font-bold text-white mb-2 tracking-wider relative z-10 drop-shadow-[0_0_10px_rgba(255,0,0,0.5)]">
+                        STRUKTUR KELAS
+                    </h2>
+                    <div class="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent group-hover:via-red-400 transition-all duration-500"></div>
+                </div>
+                <div class="mt-4 flex items-center justify-center gap-2 text-red-400/80 text-xs md:text-sm font-tech tracking-widest uppercase">
+                    <span>PAI B</span>
+                    <span class="w-1 h-1 bg-red-500 rounded-full"></span>
+                    <span>2025</span>
+                </div>
+            </div>
+
+            <!-- Content Container -->
+            <div class="relative w-full">
+                <!-- Tree will be injected here via JS -->
+                <div id="structure-content-container" class="animate-float">
+                    <!-- Loading State (Initial) -->
+                    <div class="flex flex-col items-center justify-center py-20 gap-4">
+                        <div class="w-12 h-12 border-4 border-red-900 border-t-red-500 rounded-full animate-spin"></div>
+                        <div class="text-gray-500 font-tech text-sm animate-pulse">Menghubungkan ke Database...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Actions -->
+        <div class="pb-12 mt-4 flex flex-col md:flex-row gap-6 items-center justify-center z-20">
+             <!-- Team Executor Button -->
+             <button id="btn-team-executor" onclick="toggleTeamExecutor()" class="relative px-8 py-3 bg-black border border-gray-800 rounded-full group overflow-hidden transition-all duration-300 hover:border-red-600 hover:shadow-[0_0_20px_rgba(220,38,38,0.4)]">
+                <div class="absolute inset-0 bg-red-900/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                <span class="relative font-tech text-xs md:text-sm text-gray-300 group-hover:text-white tracking-widest font-bold flex items-center gap-2">
+                    <i class="fas fa-network-wired"></i> TEAM EXECUTOR
+                </span>
+            </button>
+
+            <!-- Family Button -->
+            <button onclick="triggerConfetti()" class="group relative px-10 py-4 bg-gradient-to-r from-red-950 to-black overflow-hidden rounded-xl border border-red-900 shadow-lg transition-all duration-300 hover:scale-105 active:scale-95">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+                <div class="flex items-center gap-3 relative z-10">
+                    <i class="fas fa-users text-xl text-red-500 group-hover:text-white transition-colors duration-300"></i>
+                    <span class="font-tech text-lg md:text-xl font-bold text-white tracking-widest group-hover:text-red-100">FAMILY PAI B</span>
+                </div>
+                <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-red-500 group-hover:w-full transition-all duration-500 ease-out"></div>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- TEAM EXECUTOR MODAL -->
+    <div id="team-executor-modal" class="fullscreen-overlay" tabindex="0">
+        <div class="w-full min-h-screen pt-10 pb-10 relative flex flex-col">
+             <button onclick="toggleTeamExecutor()" class="fixed top-4 right-4 md:top-8 md:right-8 z-50 bg-black/50 hover:bg-red-600 text-white w-12 h-12 rounded-full backdrop-blur-sm border border-red-500/30 transition flex items-center justify-center text-xl shadow-lg group">
+                <i class="fas fa-times group-hover:rotate-90 transition-transform duration-300"></i>
+            </button>
+            
+            <div class="text-center mb-10 px-4 sticky top-0 bg-gradient-to-b from-[#050000] via-[#050000] to-transparent z-40 pb-4 pt-4">
+                <h2 class="text-3xl md:text-5xl font-tech font-bold text-white mb-2 text-shadow-glow">TEAM EXECUTOR</h2>
+                <div class="flex justify-center gap-4 text-[10px] md:text-xs text-gray-400 font-mono">
+                    <span class="text-orange-400"><i class="fas fa-paint-brush mr-1"></i>KREATIF (6)</span>
+                    <span class="text-red-400"><i class="fas fa-broom mr-1"></i>KEBERSIHAN (5)</span>
+                    <span class="text-yellow-400"><i class="fas fa-hand-holding-heart mr-1"></i>SOSIAL (6)</span>
+                </div>
+            </div>
+
+            <!-- Executor Content Container -->
+            <div class="flex-grow flex items-start justify-center overflow-auto px-4">
+                 <div id="executor-tree-container" class="tree min-h-[400px]">
+                    <!-- Tree injected via JS -->
+                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT NAME MODAL -->
+    <div id="edit-modal" class="edit-modal">
+        <div class="bg-[#0f0505] border border-red-800 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-[0_0_50px_rgba(255,0,0,0.15)] transform transition-all scale-100 relative overflow-hidden">
+            <!-- Decorative corner -->
+            <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-red-900 to-transparent opacity-20"></div>
+
+            <h3 class="text-xl font-bold text-white mb-6 font-tech flex items-center gap-2">
+                <i class="fas fa-pen-to-square text-red-500"></i> EDIT DATA
+            </h3>
+            
+            <div class="mb-6">
+                <label class="block text-red-400/70 text-xs font-bold uppercase tracking-wider mb-2">Nama Lengkap</label>
+                <input type="text" id="input-name" class="w-full bg-black border border-gray-800 rounded-lg py-3 px-4 text-white placeholder-gray-600 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all font-body tracking-wide" placeholder="Ketik nama disini..." autocomplete="off">
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <div class="flex gap-3">
+                    <button onclick="closeEditModal()" class="flex-1 py-2.5 rounded-lg border border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-white transition-colors text-sm font-semibold">
+                        Batal
+                    </button>
+                    <button id="btn-save" onclick="saveMember()" class="flex-1 py-2.5 rounded-lg bg-gradient-to-r from-red-800 to-red-600 text-white font-bold hover:from-red-700 hover:to-red-500 transition-all shadow-lg text-sm tracking-wide flex justify-center items-center gap-2">
+                        <span>Simpan</span>
+                    </button>
+                </div>
+                <button onclick="clearMember()" class="w-full py-2 rounded-lg border border-red-900/30 text-red-900 hover:text-red-500 hover:bg-red-900/10 transition-colors text-xs uppercase tracking-widest">
+                    Hapus Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- KONFIGURASI API ---
+        // GANTI URL INI DENGAN URL APPS SCRIPT ANDA
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhCPE732fQRU8oPixaBTKRWf8tYlOzy-BK4nOYt1hn_ZUJY7JLEnEkoxUK_8GMPzOIYg/exec";
+
+        // --- DATA STATE ---
+        let mainStructure = {
+            ketua: { name: "", img: "" },
+            sek1: { name: "", img: "" },
+            sek2: { name: "", img: "" },
+            ben: { name: "", img: "" }
+        };
+
+        let executorStructure = {
+            koor: { name: "", img: "" },
+            div_kreatif: Array(6).fill({name: "", img: ""}),
+            div_kebersihan: Array(5).fill({name: "", img: ""}),
+            div_sosial: Array(6).fill({name: "", img: ""})
+        };
+
+        let currentEditTarget = null;
+
+        // --- CORE FUNCTIONS (API) ---
+
+        async function loadData() {
+            if (SCRIPT_URL === "https://script.google.com/macros/s/AKfycbzhCPE732fQRU8oPixaBTKRWf8tYlOzy-BK4nOYt1hn_ZUJY7JLEnEkoxUK_8GMPzOIYg/exec") {
+                console.warn("URL Script belum diset!");
+                // Gunakan data dummy/kosong jika URL belum ada agar tidak error
+                renderMainStructure();
+                return;
+            }
+
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const data = await response.json();
+                
+                if (data.main && data.executor) {
+                    mainStructure = data.main;
+                    executorStructure = data.executor;
+                    renderMainStructure();
+                    
+                    // Update executor jika modal sedang terbuka
+                    if(document.getElementById('team-executor-modal').classList.contains('open')) {
+                        renderTeamExecutorTree();
+                    }
+                }
+            } catch (error) {
+                console.error("Gagal mengambil data:", error);
+                document.getElementById('structure-content-container').innerHTML = `
+                    <div class="text-center text-red-500 mt-10">
+                        <p>Gagal memuat data dari Sheet.</p>
+                        <button onclick="loadData()" class="mt-4 px-4 py-2 bg-red-900 rounded text-sm hover:bg-red-800">Coba Lagi</button>
+                    </div>
+                `;
+            }
+        }
+
+        async function saveToSheet(payload) {
+            if (SCRIPT_URL === "https://script.google.com/macros/s/AKfycbzhCPE732fQRU8oPixaBTKRWf8tYlOzy-BK4nOYt1hn_ZUJY7JLEnEkoxUK_8GMPzOIYg/exec") {
+                alert("URL Google Script belum dipasang!");
+                return false;
+            }
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Penting untuk Google Apps Script Web App
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                return true;
+            } catch (error) {
+                console.error("Error saving:", error);
+                return false;
+            }
+        }
+
+        function getAvatarUrl(name) {
+            if(!name) return "";
+            return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=300505&color=ffffff&size=200&bold=true&length=1`;
+        }
+
+        // --- COMPONENT GENERATOR (Sama seperti sebelumnya) ---
+
+        function createCard(key, label, dataObj, type = 'main', index = null) {
+            const name = dataObj.name;
+            const img = dataObj.img || getAvatarUrl(name);
+            const clickParams = `'${type}', '${key}'${index !== null ? `, ${index}` : ''}`;
+
+            if (!name) {
+                return `
+                <div class="glass-panel empty-slot text-center p-3 rounded-xl inline-flex flex-col items-center justify-center w-24 md:w-40 h-32 md:h-48 cursor-pointer z-10 mx-1 mb-2 group transition-all duration-300" onclick="openEditModal(${clickParams})">
+                    <div class="w-10 h-10 md:w-14 md:h-14 rounded-full mb-3 flex items-center justify-center border border-dashed border-gray-600 text-gray-600 group-hover:border-red-500 group-hover:text-red-500 group-hover:scale-110 transition-all bg-black/40">
+                        <i class="fas fa-plus text-sm md:text-lg"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-600 group-hover:text-red-400 text-[10px] md:text-xs break-words px-1 transition-colors">Isi Data</h3>
+                    <p class="text-[8px] md:text-[9px] text-gray-700 uppercase tracking-wider mt-1 font-tech">${label}</p>
+                </div>`;
+            }
+
+            return `
+            <div class="glass-panel text-center p-3 md:p-4 rounded-xl inline-flex flex-col items-center justify-center w-24 md:w-40 h-auto min-h-[128px] md:min-h-[192px] hover:z-50 cursor-pointer mx-1 mb-2 group" onclick="openEditModal(${clickParams})">
+                <div class="relative w-12 h-12 md:w-20 md:h-20 mb-3">
+                    <div class="absolute inset-0 bg-red-600 blur-lg opacity-20 rounded-full group-hover:opacity-40 transition-opacity"></div>
+                    <img src="${img}" alt="${label}" class="w-full h-full object-cover rounded-full border-2 border-gray-600 group-hover:border-red-500 shadow-lg avatar-glow relative z-10 bg-[#1a0505]">
+                </div>
+                <h3 class="font-bold text-white text-[10px] md:text-sm leading-tight break-words w-full px-1 mb-1 font-body group-hover:text-red-200 transition-colors">${name}</h3>
+                <div class="h-[1px] w-8 bg-red-900/50 mx-auto my-1"></div>
+                <p class="text-[8px] md:text-[9px] text-red-400 uppercase tracking-widest font-tech">${label}</p>
+            </div>`;
+        }
+
+        // --- MODAL LOGIC ---
+
+        function openEditModal(type, key, index = null) {
+            currentEditTarget = { type, key, index };
+            const modal = document.getElementById('edit-modal');
+            const input = document.getElementById('input-name');
+            
+            let currentName = "";
+            if (type === 'main') {
+                currentName = mainStructure[key].name;
+            } else {
+                if (index !== null) {
+                    currentName = executorStructure[key][index].name;
+                } else {
+                    currentName = executorStructure[key].name;
+                }
+            }
+
+            input.value = currentName;
+            modal.classList.add('active');
+            
+            // Reset button state
+            const btn = document.getElementById('btn-save');
+            btn.innerHTML = '<span>Simpan</span>';
+            btn.disabled = false;
+
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.remove('active');
+            currentEditTarget = null;
+        }
+
+        function clearMember() {
+             if (!currentEditTarget) return;
+             document.getElementById('input-name').value = "";
+             saveMember();
+        }
+
+        async function saveMember() {
+            if (!currentEditTarget) return;
+
+            const input = document.getElementById('input-name');
+            const btn = document.getElementById('btn-save');
+            
+            // UI Loading State
+            btn.innerHTML = '<div class="spinner"></div><span>Menyimpan...</span>';
+            btn.disabled = true;
+
+            const newName = input.value.trim();
+            const { type, key, index } = currentEditTarget;
+            const newData = { 
+                name: newName, 
+                img: newName ? getAvatarUrl(newName) : "" 
+            };
+
+            // 1. Update UI Lokal (Optimistic UI)
+            if (type === 'main') {
+                mainStructure[key] = newData;
+                renderMainStructure();
+            } else {
+                if (index !== null) {
+                    const newArray = [...executorStructure[key]];
+                    newArray[index] = newData;
+                    executorStructure[key] = newArray;
+                } else {
+                    executorStructure[key] = newData;
+                }
+                
+                const executorContainer = document.getElementById('executor-tree-container');
+                if(document.getElementById('team-executor-modal').classList.contains('open')) {
+                    renderTeamExecutorTree();
+                }
+            }
+
+            // 2. Kirim ke Google Sheet
+            const payload = {
+                key: key,
+                index: index,
+                name: newData.name,
+                img: newData.img
+            };
+
+            await saveToSheet(payload);
+
+            closeEditModal();
+        }
+
+        // --- RENDER FUNCTIONS ---
+
+        function renderMainStructure() {
+            const container = document.getElementById('structure-content-container');
+            const data = mainStructure;
+
+            const html = `
+                <div class="tree">
+                    <ul>
+                        <li>
+                            ${createCard('ketua', "Ketua Kelas", data.ketua)}
+                            <ul>
+                                <li>
+                                    <div class="inline-block px-4 py-1 mb-4 rounded-full border border-blue-900/50 bg-blue-950/20 backdrop-blur text-blue-300 text-[10px] font-tech tracking-widest shadow-[0_0_15px_rgba(30,58,138,0.3)]">SEKRETARIS</div>
+                                    <br>
+                                    <div class="flex gap-2 justify-center">
+                                        ${createCard('sek1', "Sekretaris 1", data.sek1)}
+                                        ${createCard('sek2', "Sekretaris 2", data.sek2)}
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="inline-block px-4 py-1 mb-4 rounded-full border border-emerald-900/50 bg-emerald-950/20 backdrop-blur text-emerald-300 text-[10px] font-tech tracking-widest shadow-[0_0_15px_rgba(6,78,59,0.3)]">BENDAHARA</div>
+                                    <br>
+                                    <div class="flex justify-center">
+                                        ${createCard('ben', "Bendahara", data.ben)}
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>`;
+            
+            container.innerHTML = html;
+        }
+
+        function toggleTeamExecutor() {
+            const modal = document.getElementById('team-executor-modal');
+            
+            if (modal.classList.contains('open')) {
+                modal.classList.remove('open');
+                document.body.style.overflow = 'auto';
+            } else {
+                renderTeamExecutorTree();
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function renderTeamExecutorTree() {
+            const container = document.getElementById('executor-tree-container');
+            const data = executorStructure;
+            const type = 'executor';
+
+            const html = `
+            <ul>
+                <li>
+                    ${createCard('koor', "Koordinator Utama", data.koor, type)}
+                    <ul>
+                        <li class="align-top">
+                            <div class="glass-panel px-3 py-2 rounded-lg border border-orange-500/30 mb-4 inline-block bg-orange-950/20">
+                                <h5 class="text-orange-400 font-bold text-[10px] md:text-xs whitespace-nowrap font-tech tracking-wider"><i class="fas fa-paint-brush mr-1"></i> KREATIF</h5>
+                            </div>
+                            <div class="grid grid-cols-1 gap-1 justify-items-center">
+                                ${data.div_kreatif.map((m, i) => createCard('div_kreatif', `Anggota ${i+1}`, m, type, i)).join('')}
+                            </div>
+                        </li>
+
+                        <li class="align-top">
+                            <div class="glass-panel px-3 py-2 rounded-lg border border-red-500/30 mb-4 inline-block bg-red-950/20">
+                                <h5 class="text-red-400 font-bold text-[10px] md:text-xs whitespace-nowrap font-tech tracking-wider"><i class="fas fa-broom mr-1"></i> KEBERSIHAN</h5>
+                            </div>
+                            <div class="grid grid-cols-1 gap-1 justify-items-center">
+                                ${data.div_kebersihan.map((m, i) => createCard('div_kebersihan', `Anggota ${i+1}`, m, type, i)).join('')}
+                            </div>
+                        </li>
+
+                        <li class="align-top">
+                            <div class="glass-panel px-3 py-2 rounded-lg border border-yellow-500/30 mb-4 inline-block bg-yellow-950/20">
+                                <h5 class="text-yellow-400 font-bold text-[10px] md:text-xs whitespace-nowrap font-tech tracking-wider"><i class="fas fa-heart mr-1"></i> SOSIAL</h5>
+                            </div>
+                            <div class="grid grid-cols-1 gap-1 justify-items-center">
+                                ${data.div_sosial.map((m, i) => createCard('div_sosial', `Anggota ${i+1}`, m, type, i)).join('')}
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            `;
+            container.innerHTML = html;
+        }
+
+        function triggerConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 300 };
+
+            function random(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#ff0000', '#ffffff', '#8a0000'] }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#ff0000', '#ffffff', '#8a0000'] }));
+            }, 250);
+        }
+
+        // Initialize
+        window.onload = function() {
+            loadData();
+        };
+
+        // Allow Enter key to save
+        document.getElementById('input-name').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                saveMember();
+            }
+        });
+    </script>
+</body>
+</html>
