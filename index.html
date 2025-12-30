@@ -355,7 +355,7 @@
     <!-- JavaScript Logic -->
     <script>
         // --- KONFIGURASI API ---
-        // GANTI URL INI DENGAN URL APPS SCRIPT ANDA
+        // URL Apps Script sudah diupdate
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhCPE732fQRU8oPixaBTKRWf8tYlOzy-BK4nOYt1hn_ZUJY7JLEnEkoxUK_8GMPzOIYg/exec";
 
         // --- DATA STATE ---
@@ -378,9 +378,10 @@
         // --- CORE FUNCTIONS (API) ---
 
         async function loadData() {
-            if (SCRIPT_URL === "https://script.google.com/macros/s/AKfycbzhCPE732fQRU8oPixaBTKRWf8tYlOzy-BK4nOYt1hn_ZUJY7JLEnEkoxUK_8GMPzOIYg/exec") {
-                console.warn("URL Script belum diset!");
-                // Gunakan data dummy/kosong jika URL belum ada agar tidak error
+            // Perbaikan: Cek jika URL masih default/placeholder atau kosong
+            if (!SCRIPT_URL || SCRIPT_URL.includes("MASUKAN_URL")) {
+                console.warn("URL Script belum diset atau masih default!");
+                // Gunakan data dummy/kosong agar tidak error visual
                 renderMainStructure();
                 return;
             }
@@ -404,6 +405,7 @@
                 document.getElementById('structure-content-container').innerHTML = `
                     <div class="text-center text-red-500 mt-10">
                         <p>Gagal memuat data dari Sheet.</p>
+                        <p class="text-xs text-gray-500 mt-2">Pastikan deployment script diset ke "Anyone" (Siapa saja)</p>
                         <button onclick="loadData()" class="mt-4 px-4 py-2 bg-red-900 rounded text-sm hover:bg-red-800">Coba Lagi</button>
                     </div>
                 `;
@@ -411,8 +413,9 @@
         }
 
         async function saveToSheet(payload) {
-            if (SCRIPT_URL === "https://script.google.com/macros/s/AKfycbzhCPE732fQRU8oPixaBTKRWf8tYlOzy-BK4nOYt1hn_ZUJY7JLEnEkoxUK_8GMPzOIYg/exec") {
-                alert("URL Google Script belum dipasang!");
+            // Perbaikan: Cek jika URL masih default/placeholder atau kosong
+            if (!SCRIPT_URL || SCRIPT_URL.includes("MASUKAN_URL")) {
+                alert("URL Google Script belum dipasang dengan benar!");
                 return false;
             }
 
@@ -437,7 +440,7 @@
             return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=300505&color=ffffff&size=200&bold=true&length=1`;
         }
 
-        // --- COMPONENT GENERATOR (Sama seperti sebelumnya) ---
+        // --- COMPONENT GENERATOR ---
 
         function createCard(key, label, dataObj, type = 'main', index = null) {
             const name = dataObj.name;
