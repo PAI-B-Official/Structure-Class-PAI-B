@@ -218,6 +218,18 @@
         let semesterData = {}; 
         let SERVER_PASSWORD = ""; 
 
+        // Fungsi Masuk Fullscreen
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => console.log(err));
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+        }
+
         window.onload = function() {
             generateStudents();
             updateSemesterDisplay();
@@ -225,6 +237,17 @@
             
             document.getElementById('input-name').addEventListener('keypress', (e) => { if (e.key === 'Enter') initiateAction('save'); });
             document.getElementById('admin-password').addEventListener('keypress', (e) => { if (e.key === 'Enter') confirmAction(); });
+
+            // FULLSCREEN LOGIC
+            // 1. Coba otomatis (akan diblokir di banyak browser modern)
+            enterFullscreen();
+
+            // 2. Fallback: Klik pertama pada body akan memicu fullscreen
+            document.body.addEventListener('click', function() {
+                if (!document.fullscreenElement) {
+                    enterFullscreen();
+                }
+            }, { once: true }); // Listener dihapus setelah klik pertama
         };
 
         async function loadStructureData() {
