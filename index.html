@@ -30,30 +30,37 @@
         body { background-color: #0a0000; color: #e5e5e5; overflow-x: hidden; font-family: 'Poppins', sans-serif; }
         .glass-panel { background: rgba(40, 0, 0, 0.6); border: 1px solid rgba(255, 50, 50, 0.1); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .tree { display: flex; justify-content: center; margin: 0 auto; min-width: 100%; padding-bottom: 50px; }
-        .tree ul { padding-top: 20px; position: relative; transition: all 0.5s; display: flex; justify-content: center; }
-        .tree li { float: left; text-align: center; list-style-type: none; position: relative; padding: 20px 5px 0 5px; transition: all 0.5s; }
-        .tree li::before, .tree li::after { content: ''; position: absolute; top: 0; right: 50%; border-top: 2px solid #8a0000; width: 50%; height: 20px; }
-        .tree li::after { right: auto; left: 50%; border-left: 2px solid #8a0000; }
+        .tree ul { padding-top: 40px; position: relative; transition: all 0.5s; display: flex; justify-content: center; }
+        .tree li { float: left; text-align: center; list-style-type: none; position: relative; padding: 40px 10px 0 10px; transition: all 0.5s; }
+        
+        .tree li::before, .tree li::after { content: ''; position: absolute; top: 0; right: 50%; border-top: 3px solid #8a0000; width: 50%; height: 40px; }
+        .tree li::after { right: auto; left: 50%; border-left: 3px solid #8a0000; }
         .tree li:only-child::after, .tree li:only-child::before { display: none; }
         .tree li:only-child { padding-top: 0; }
         .tree li:first-child::before, .tree li:last-child::after { border: 0 none; }
-        .tree li:last-child::before{ border-right: 2px solid #8a0000; border-radius: 0 5px 0 0; }
+        .tree li:last-child::before{ border-right: 3px solid #8a0000; border-radius: 0 5px 0 0; }
         .tree li:first-child::after{ border-radius: 5px 0 0 0; }
-        .tree ul ul::before{ content: ''; position: absolute; top: 0; left: 50%; border-left: 2px solid #8a0000; width: 0; height: 20px; }
+        .tree ul ul::before{ content: ''; position: absolute; top: 0; left: 50%; border-left: 3px solid #8a0000; width: 0; height: 40px; }
+        
         .fullscreen-overlay, .edit-modal, .custom-modal { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 100; overflow: auto; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; display: flex; justify-content: center; align-items: center; }
         .fullscreen-overlay { background: rgba(10, 0, 0, 0.95); transform: scale(0.9); transition: transform 0.3s ease, opacity 0.3s ease; display: block; }
         .edit-modal { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 200; }
         .custom-modal { background: rgba(0,0,0,0.9); z-index: 200; }
         .open, .active { opacity: 1; pointer-events: auto; transform: scale(1); }
-        .avatar-glow { box-shadow: 0 0 15px rgba(255, 0, 0, 0.2); transition: 0.3s; }
-        .glass-panel:hover .avatar-glow { box-shadow: 0 0 25px rgba(255, 0, 0, 0.6); border-color: #fff; }
         .empty-slot { border: 1px dashed rgba(150, 150, 150, 0.3); background: rgba(20, 0, 0, 0.2); }
         .empty-slot:hover { border-color: #ef4444; border-style: solid; }
         
-        /* Fixed symmetry for cards */
-        .card-container { width: 96px; height: 135px; }
-        @media (min-width: 768px) { .card-container { width: 144px; height: 180px; } }
+        .card-container { width: 150px; height: 240px; }
+        @media (min-width: 768px) { .card-container { width: 240px; height: 360px; } }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #0f0505; }
+        ::-webkit-scrollbar-thumb { background: #8a0000; border-radius: 6px; border: 2px solid #0f0505; }
+        ::-webkit-scrollbar-thumb:hover { background: #ff0000; }
+        * { scrollbar-width: thin; scrollbar-color: #8a0000 #0f0505; }
+        
+        .blur-content { filter: blur(8px); pointer-events: none; user-select: none; transition: filter 0.3s ease; }
     </style>
 </head>
 <body class="selection:bg-red-500 selection:text-white">
@@ -62,154 +69,119 @@
         <div class="absolute inset-0 bg-gradient-to-b from-black via-[#1a0000] to-black opacity-80"></div>
     </div>
 
-    <main class="min-h-screen pt-10 px-4 md:px-8 max-w-7xl mx-auto w-full">
-        <section id="structure" class="py-10 relative min-h-[600px]">
-            <div class="mb-12">
-                <div class="text-center mb-6">
-                    <h2 class="text-3xl md:text-5xl font-tech font-bold text-white mb-2 uppercase">STRUKTUR KELAS</h2>
-                    <div class="h-1 w-20 bg-red-600 mx-auto rounded-full"></div>
-                </div>
-                <div class="max-w-4xl mx-auto px-4 flex justify-center">
-                    <div class="relative w-full max-w-sm flex items-center justify-center bg-black/40 h-16 rounded-full border border-red-900/30 backdrop-blur-sm">
-                        <button onclick="prevSemester()" id="btn-prev-sem" class="absolute left-4 z-20 text-2xl text-red-600 hover:text-white transform active:scale-90"><i class="fas fa-chevron-left"></i></button>
-                        <div class="text-center w-full"><h3 id="current-semester-display" class="font-tech text-2xl md:text-3xl text-white font-bold tracking-widest transition-all">SEMESTER I</h3></div>
-                        <button onclick="nextSemester()" id="btn-next-sem" class="absolute right-4 z-20 text-2xl text-red-600 hover:text-white transform active:scale-90"><i class="fas fa-chevron-right"></i></button>
+    <div id="main-content-wrapper" class="transition-all duration-300">
+        <main class="min-h-screen pt-10 px-4 md:px-8 max-w-7xl mx-auto w-full">
+            <section id="structure" class="py-10 relative min-h-[600px]">
+                <div class="mb-12">
+                    <div class="text-center mb-6">
+                        <h2 class="text-4xl md:text-6xl font-tech font-bold text-white mb-4 uppercase tracking-wider">STRUKTUR KELAS</h2>
+                        <div class="h-2 w-32 bg-red-600 mx-auto rounded-full shadow-[0_0_15px_rgba(220,38,38,0.7)]"></div>
+                    </div>
+                    <div class="max-w-4xl mx-auto px-4 flex justify-center">
+                        <div class="relative w-full max-w-xl flex items-center justify-center bg-black/40 h-20 rounded-full border-2 border-red-900/30 backdrop-blur-sm">
+                            <button onclick="prevSemester()" id="btn-prev-sem" class="absolute left-6 z-20 text-3xl text-red-600 hover:text-white transform active:scale-90 transition-transform"><i class="fas fa-chevron-left"></i></button>
+                            <div class="text-center w-full"><h3 id="current-semester-display" class="font-tech text-3xl md:text-4xl text-white font-bold tracking-[0.2em] transition-all">SEMESTER I</h3></div>
+                            <button onclick="nextSemester()" id="btn-next-sem" class="absolute right-6 z-20 text-3xl text-red-600 hover:text-white transform active:scale-90 transition-transform"><i class="fas fa-chevron-right"></i></button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="structure-content-container" class="w-full overflow-x-auto padding-bottom-2rem flex justify-center min-h-[400px]"></div>
+                <div id="structure-content-container" class="w-full overflow-x-auto padding-bottom-2rem flex justify-center min-h-[500px] py-8"></div>
 
-            <div class="text-center pb-12 mt-8 flex flex-col gap-4 items-center">
-                 <button id="btn-team-executor" onclick="toggleTeamExecutor()" class="px-6 py-2 bg-gray-900 border border-gray-600 hover:border-red-500 rounded-full text-xs font-bold tracking-wider text-gray-300 hover:text-white transition-all hidden"><i class="fas fa-network-wired mr-2"></i> TEAM EXECUTOR</button>
-                <button onclick="toggleFamilyGallery()" class="px-10 py-4 bg-gradient-to-r from-red-900 to-black rounded-xl border border-red-600/50 shadow-lg hover:shadow-red-600/40 transition-all">
-                    <div class="flex items-center gap-3"><i class="fas fa-users text-2xl text-red-400"></i><span class="font-tech text-xl font-bold text-white tracking-widest uppercase">FAMILY PAI B</span></div>
-                </button>
-            </div>
-        </section>
-    </main>
+                <div class="text-center pb-12 mt-8 flex flex-col gap-4 items-center">
+                     <button id="btn-team-executor" onclick="toggleTeamExecutor()" class="px-10 py-4 bg-gradient-to-r from-orange-700 to-black rounded-xl border border-orange-500/50 shadow-lg hover:shadow-orange-600/40 transition-all hidden group hover:scale-105 cursor-pointer z-10">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-network-wired text-3xl text-orange-400 group-hover:text-white transition-colors"></i>
+                            <span class="font-tech text-xl font-bold text-white tracking-widest uppercase">TEAM EXECUTOR</span>
+                        </div>
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
 
-    <!-- MODAL TEAM EXECUTOR -->
     <div id="team-executor-modal" class="fullscreen-overlay">
         <div class="w-full min-h-screen pt-10 pb-10 flex flex-col">
-             <button onclick="toggleTeamExecutor()" class="fixed top-4 right-4 z-50 bg-black/50 hover:bg-red-600 text-white w-12 h-12 rounded-full border border-red-500/30 flex items-center justify-center shadow-lg"><i class="fas fa-times"></i></button>
-            <div class="text-center mb-10 px-4"><h2 class="text-3xl md:text-5xl font-tech font-bold text-white uppercase">TEAM EXECUTOR</h2></div>
-            <div id="executor-tree-container" class="tree flex-grow flex items-start justify-center overflow-auto px-4"></div>
+             <button onclick="toggleTeamExecutor()" class="fixed top-4 right-4 z-[200] bg-black/50 hover:bg-red-600 text-white w-14 h-14 rounded-full border-2 border-red-500/30 flex items-center justify-center shadow-lg text-xl transition-all cursor-pointer"><i class="fas fa-times"></i></button>
+            <div class="text-center mb-16 px-4 relative z-10"><h2 class="text-4xl md:text-6xl font-tech font-bold text-white uppercase tracking-widest drop-shadow-lg">TEAM EXECUTOR</h2></div>
+            <div id="executor-tree-container" class="flex-grow flex items-start justify-center overflow-auto px-4 pb-20"></div>
         </div>
     </div>
 
-    <!-- MODAL PASSWORD -->
     <div id="password-modal" class="custom-modal">
-        <div class="bg-[#0f0505] border border-red-800 rounded-xl p-6 max-w-xs w-full mx-4 shadow-2xl text-center">
-            <div class="mb-4">
-                <i class="fas fa-lock text-4xl text-red-600 mb-2"></i>
-                <h3 class="text-lg font-bold text-white font-tech uppercase">KEAMANAN</h3>
-                <p class="text-gray-400 text-xs mt-1">Masukkan Password Admin</p>
+        <div class="bg-[#0f0505] border-2 border-red-800 rounded-2xl p-8 max-w-xs w-full mx-4 shadow-[0_0_50px_rgba(139,0,0,0.5)] text-center">
+            <div class="mb-6">
+                <i class="fas fa-shield-halved text-5xl text-red-600 mb-4 animate-pulse"></i>
+                <h3 class="text-xl font-bold text-white font-tech uppercase tracking-widest">KEAMANAN</h3>
+                <p class="text-gray-400 text-xs mt-2 uppercase tracking-wide">Masukkan Password Admin</p>
             </div>
-            <input type="password" id="admin-password" class="w-full bg-black border border-gray-700 rounded-lg py-2 px-3 text-white text-center focus:border-red-500 mb-2 tracking-widest" placeholder="••••••••">
-            <p id="password-error" class="text-red-500 text-[10px] mb-3 hidden">Password Salah!</p>
-            <div class="flex gap-2">
-                <button onclick="closePasswordModal()" class="flex-1 py-2 rounded-lg border border-gray-700 text-gray-400 text-sm">Batal</button>
-                <button onclick="confirmAction()" class="flex-1 py-2 rounded-lg bg-red-700 text-white font-bold hover:bg-red-600 text-sm uppercase">Ok</button>
+            <input type="password" id="admin-password" class="w-full bg-black border-2 border-gray-800 rounded-xl py-3 px-4 text-white text-center focus:border-red-600 mb-2 tracking-[0.5em] text-lg transition-colors outline-none" placeholder="••••••••">
+            <p id="password-error" class="text-red-500 text-[10px] mb-4 hidden font-bold tracking-wide bg-red-950/30 py-1 rounded">PASSWORD SALAH!</p>
+            <div class="flex gap-3 mt-4">
+                <button onclick="closePasswordModal()" class="flex-1 py-3 rounded-xl border border-gray-700 text-gray-400 text-xs font-bold uppercase hover:bg-gray-900 transition-colors">Batal</button>
+                <button onclick="confirmAction()" class="flex-1 py-3 rounded-xl bg-red-700 text-white font-bold hover:bg-red-600 text-xs uppercase tracking-wider shadow-lg hover:shadow-red-900/50 transition-all">Konfirmasi</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL EDIT / PREVIEW -->
     <div id="edit-modal" class="edit-modal">
-        <div class="bg-[#0f0505] border border-red-800 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl relative">
-            <button onclick="closeEditModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+        <div class="bg-[#0f0505] border-2 border-red-800 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-[0_0_60px_rgba(200,0,0,0.3)] relative">
+            <button onclick="closeEditModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white transition-colors"><i class="fas fa-times text-2xl"></i></button>
 
             <div id="edit-form-container">
-                <h3 class="text-xl font-bold text-white mb-6 font-tech uppercase flex items-center gap-2"><i class="fas fa-pen-to-square text-red-500"></i> ISI DATA</h3>
-                <div class="mb-6">
-                    <label class="block text-red-400/70 text-xs font-bold uppercase mb-2">Nama Lengkap</label>
-                    <input type="text" id="input-name" class="w-full bg-black border border-gray-800 rounded-lg py-3 px-4 text-white focus:border-red-500 focus:outline-none" placeholder="Masukkan nama..." autocomplete="off">
+                <h3 class="text-2xl font-bold text-white mb-8 font-tech uppercase flex items-center gap-3"><i class="fas fa-user-pen text-red-500"></i> EDIT DATA</h3>
+                <div class="mb-8">
+                    <label class="block text-red-500 text-xs font-bold uppercase mb-3 tracking-wider">Nama Lengkap</label>
+                    <input type="text" id="input-name" class="w-full bg-black/50 border border-gray-700 rounded-xl py-4 px-5 text-white focus:border-red-500 focus:outline-none transition-all placeholder-gray-600 text-lg" placeholder="Ketik nama disini..." autocomplete="off">
                 </div>
-                <div class="flex gap-3">
-                    <button onclick="closeEditModal()" class="flex-1 py-2.5 rounded-lg border border-gray-700 text-gray-400 text-sm font-semibold">Batal</button>
-                    <button onclick="initiateAction('save')" class="flex-1 py-2.5 rounded-lg bg-red-700 text-white font-bold hover:bg-red-600 text-sm uppercase">Simpan</button>
+                <div class="flex gap-4">
+                    <button onclick="closeEditModal()" class="flex-1 py-3 rounded-xl border border-gray-700 text-gray-400 text-sm font-bold uppercase hover:bg-gray-900 transition-all">Batal</button>
+                    <button onclick="initiateAction('save')" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-red-800 to-red-600 text-white font-bold hover:from-red-700 hover:to-red-500 text-sm uppercase tracking-wide shadow-lg hover:shadow-red-500/30 transition-all">Simpan</button>
                 </div>
             </div>
 
             <div id="preview-container" class="hidden flex-col items-center text-center">
-                <h3 class="text-xl font-bold text-white mb-4 font-tech uppercase tracking-widest">DATA ANGGOTA</h3>
-                <div class="w-full aspect-square bg-gray-900 rounded-xl overflow-hidden mb-4 border-2 border-red-900/50">
-                     <img id="preview-img" src="" class="w-full h-full object-cover" referrerpolicy="no-referrer">
+                <h3 class="text-2xl font-bold text-white mb-2 font-tech uppercase tracking-[0.2em] text-red-500">ANGGOTA</h3>
+                <div class="w-full aspect-square bg-gradient-to-b from-gray-800 to-black rounded-2xl overflow-hidden mb-6 mt-6 border-4 border-red-900/50 shadow-2xl relative group">
+                     <img id="preview-img" src="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerpolicy="no-referrer">
                 </div>
-                <h4 id="preview-name" class="text-white font-bold text-xl mb-6 font-body">Nama</h4>
-                <button onclick="initiateAction('delete')" class="w-full py-3 rounded-lg bg-red-950/40 border border-red-600 text-red-500 hover:bg-red-600 hover:text-white transition-all font-bold uppercase tracking-wider flex items-center justify-center gap-2">
-                    <i class="fas fa-trash-alt"></i> HAPUS DATA
+                <h4 id="preview-name" class="text-white font-bold text-2xl mb-8 font-body tracking-wide">Nama</h4>
+                <button onclick="initiateAction('delete')" class="w-full py-4 rounded-xl bg-red-950/30 border border-red-600/50 text-red-500 hover:bg-red-600 hover:text-white transition-all font-bold uppercase tracking-widest flex items-center justify-center gap-3 group">
+                    <i class="fas fa-trash-alt group-hover:rotate-12 transition-transform"></i> HAPUS DATA
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- FAMILY GALLERY -->
-    <div id="family-gallery" class="fullscreen-overlay">
-        <div class="max-w-7xl mx-auto px-4 pt-24 pb-10 relative">
-            <button onclick="toggleFamilyGallery()" class="fixed top-6 right-6 z-50 bg-red-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-2 border-black"><i class="fas fa-times"></i></button>
-            <div class="text-center mb-12"><h2 class="text-4xl md:text-6xl font-tech font-bold text-white uppercase">KELUARGA PAI B</h2><p class="text-red-400 text-lg">Selalu di Hati</p></div>
-            <div id="student-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6"></div>
-        </div>
-    </div>
-
     <script>
-        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFjS2L8Crg32Fx2IQHrZ9nu7R8GNOSjQh0pcNc7S7zWfPRnc6vh1AyVjVELzsjS5F4Iw/exec";
+        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGg7wbYsOle_Xat-rsuZyoH1M9aG5f4ijQP_FKfK_AtP9DYCOMhCeelJA4Woa-zGTu7Q/exec";
 
-        const dbFoto = {
-            "Ady Surya": "https://lh3.googleusercontent.com/d/1z5JRHNaprGcbhl1d5dxNKW1Y4CGVGa-A",
-            "Ahmad Lubadul Fikri": "https://lh3.googleusercontent.com/d/1wivrdbIcim8CyUio4srAiZ4tPyXu6taH",
-            "Alyvia Qurrotal A.": "https://lh3.googleusercontent.com/d/11EucklVY9pmkB6-IomvtRZAyFFzVTRoW",
-            "Anggun Lolyka H.": "https://lh3.googleusercontent.com/d/1D2ATUmALVTpPS5CoyqlKWTsZJh8LNF2d",
-            "Aqillah Mazaya": "https://lh3.googleusercontent.com/d/1Av6SMF4g5x4RVe9olnxoowj6ccqeSn50",
-            "Arina Manasika": "https://lh3.googleusercontent.com/d/1j-tiqZpNxPCvCK53YDL61fXgZbydjgd1",
-            "Devi Kurniasari": "https://lh3.googleusercontent.com/d/1a0bIQm8m9mIm5a3-zjQRyiW-hMF5_7D9",
-            "Elok Iis N.": "https://lh3.googleusercontent.com/d/1KIdkI-mlAZxOz0zHh6gdT8jZx_4mJe4L",
-            "Farihatul Azizah": "https://lh3.googleusercontent.com/d/15BUdEmviUdjpoh4UI8dZZx41AsXEfqUX",
-            "Hanan Tsuroya A.": "https://lh3.googleusercontent.com/d/1B8-4FSJGQauz6yrncfpkZRHaRLG3xTvF",
-            "Hanni Hasanati": "https://lh3.googleusercontent.com/d/1jn_xKJcu7nZ0Nl5fVhvg_NWlBmYnswUP",
-            "Jembar Juli Y.": "https://lh3.googleusercontent.com/d/1vQoS8GhZ3HlbwD9tqIy6a6iXBWxo4w8k",
-            "Lusi Rahmah O.": "https://lh3.googleusercontent.com/d/1FaB6bGBgsxIBVtFRrd7r24fIQpUM8qlH",
-            "M. Hanif Fakhry": "https://lh3.googleusercontent.com/d/1KytnHSsBLr26o56VOcyoHnjKcOP6vJPX",
-            "Pniel Munandar": "https://lh3.googleusercontent.com/d/1pWXnDqhmfewv37D679deqQQmf57RgivY",
-            "Putri Dwi Astuti": "https://lh3.googleusercontent.com/d/1h0LyPmhjMDBTDvL1zInPnD0QDEKgTNP",
-            "Riska Ayu K.": "https://lh3.googleusercontent.com/d/1TsYTbbe-lnhKTV-xArDwTEXiEmongaxC",
-            "Siti Ulfatur R.": "https://lh3.googleusercontent.com/d/1uT6FlbDlD0QBlmLRkwp8oY2xHrhhaZuq",
-            "Tsabita Hasna H.": "https://lh3.googleusercontent.com/d/1cRGStdgeYdjFJYpHS4YZ8WsIGKSXQzx8",
-            "Ubaidillah M.": "https://lh3.googleusercontent.com/d/1dKM1F66xTidpXFtt1WZAX45hSKMcocT3",
-            "Yoana Dian R.A.": "https://lh3.googleusercontent.com/d/1Pri-9DSWYsbho_WVBX444W3ZmOsnDGsi",
-            "Youvischa Aulia A.": "https://lh3.googleusercontent.com/d/1ahpDR_ZrU3ISQv7FSx7WwIFW6Gny9FC2",
-            "Yuyun Lutfiyatul K.": "https://lh3.googleusercontent.com/d/1YfPxVrroo9VHQX-RF72I3hWdF5YaR5UQ",
-            "Zain Nur Fadilah": "https://lh3.googleusercontent.com/d/16Snhd6QcxqMKtQD3vYHNzw7H8_xr4QUR"
+        const dbMahasiswa = {
+            "Ady Surya": { img: "https://lh3.googleusercontent.com/d/1z5JRHNaprGcbhl1d5dxNKW1Y4CGVGa-A", nim: "2511038" },
+            "Ahmad Lubadul Fikri": { img: "https://lh3.googleusercontent.com/d/1wivrdbIcim8CyUio4srAiZ4tPyXu6taH", nim: "2511046" },
+            "Alyvia Qurrotal Aini": { img: "https://lh3.googleusercontent.com/d/11EucklVY9pmkB6-IomvtRZAyFFzVTRoW", nim: "2511042" },
+            "Anggun Lolyka Hastuti": { img: "https://lh3.googleusercontent.com/d/1D2ATUmALVTpPS5CoyqlKWTsZJh8LNF2d", nim: "2511043" },
+            "Aqillah Mazaya": { img: "https://lh3.googleusercontent.com/d/1Av6SMF4g5x4RVe9olnxoowj6ccqeSn50", nim: "2511043" },
+            "Arina Manasika": { img: "https://lh3.googleusercontent.com/d/1j-tiqZpNxPCvCK53YDL61fXgZbydjgd1", nim: "2511065" },
+            "Devi Kurniasari": { img: "https://lh3.googleusercontent.com/d/1a0bIQm8m9mIm5a3-zjQRyiW-hMF5_7D9", nim: "2511052" },
+            "Elok Iis Nurrohmah": { img: "https://lh3.googleusercontent.com/d/1KIdkI-mlAZxOz0zHh6gdT8jZx_4mJe4L", nim: "2511060" },
+            "Farihatul Azizah": { img: "https://lh3.googleusercontent.com/d/15BUdEmviUdjpoh4UI8dZZx41AsXEfqUX", nim: "2511037" },
+            "Hanan Tsuroya Akyasi": { img: "https://lh3.googleusercontent.com/d/1B8-4FSJGQauz6yrncfpkZRHaRLG3xTvF", nim: "2511073" },
+            "Hanni Hasanati": { img: "https://lh3.googleusercontent.com/d/1jn_xKJcu7nZ0Nl5fVhvg_NWlBmYnswUP", nim: "2511068" },
+            "Jembar Juli Yuasti": { img: "https://lh3.googleusercontent.com/d/1vQoS8GhZ3HlbwD9tqIy6a6iXBWxo4w8k", nim: "2511049" },
+            "Lusi Rahmah Oktavia": { img: "https://lh3.googleusercontent.com/d/1FaB6bGBgsxIBVtFRrd7r24fIQpUM8qlH", nim: "2511080" },
+            "Muhammad Hanif Fakhry": { img: "https://lh3.googleusercontent.com/d/1KytnHSsBLr26o56VOcyoHnjKcOP6vJPX", nim: "2511079" },
+            "Pniel Munandar": { img: "https://lh3.googleusercontent.com/d/1pWXnDqhmfewv37D679deqQQmf57RgivY", nim: "2511053" },
+            "Putri Dwi Astuti": { img: "https://lh3.googleusercontent.com/d/1h0LyPmhjMDBTDvL1zInPnD0QDEKgTNP", nim: "2511061" },
+            "Riska Ayu Kesuma": { img: "https://lh3.googleusercontent.com/d/1TsYTbbe-lnhKTV-xArDwTEXiEmongaxC", nim: "2511039" },
+            "Siti Ulfatur Rohmah": { img: "https://lh3.googleusercontent.com/d/1uT6FlbDlD0QBlmLRkwp8oY2xHrhhaZuq", nim: "2511077" },
+            "Tsabita Hasna Hanifah": { img: "https://lh3.googleusercontent.com/d/1cRGStdgeYdjFJYpHS4YZ8WsIGKSXQzx8", nim: "2511071" },
+            "Ubaidillah Musthofa": { img: "https://lh3.googleusercontent.com/d/1dKM1F66xTidpXFtt1WZAX45hSKMcocT3", nim: "2511064" },
+            "Yoana Dian Riski Astuti": { img: "https://lh3.googleusercontent.com/d/1Pri-9DSWYsbho_WVBX444W3ZmOsnDGsi", nim: "2511054" },
+            "Youvischa Aulia Arsinta": { img: "https://lh3.googleusercontent.com/d/1ahpDR_ZrU3ISQv7FSx7WwIFW6Gny9FC2", nim: "2511057" },
+            "Yuyun Lutfiyatul Khoiriyah": { img: "https://lh3.googleusercontent.com/d/1YfPxVrroo9VHQX-RF72I3hWdF5YaR5UQ", nim: "2511051" },
+            "Zain Nur Fadilah": { img: "https://lh3.googleusercontent.com/d/16Snhd6QcxqMKtQD3vYHNzw7H8_xr4QUR", nim: "2511076" }
         };
-
-        const studentsData = [
-            { name: "Ady Surya", nim: "2511038", ig: "@suryaadharm_", img: dbFoto["Ady Surya"] },
-            { name: "Ahmad Lubadul Fikri", nim: "2511046", ig: "@bangkriii_", img: dbFoto["Ahmad Lubadul Fikri"] },
-            { name: "Alyvia Qurrotal A.", nim: "2511042 ", ig: "@piaa.ainiii", img: dbFoto["Alyvia Qurrotal A."] },
-            { name: "Anggun Lolyka H.", nim: "2511043", ig: "@_nnggunn_", img: dbFoto["Anggun Lolyka H."] },
-            { name: "Aqillah Mazaya", nim: "2511043", ig: "@aqilahmz._", img: dbFoto["Aqillah Mazaya"] },
-            { name: "Arina Manasika", nim: "2511065", ig: "@mnskaaa_", img: dbFoto["Arina Manasika"] },
-            { name: "Devi Kurniasari", nim: "2511052", ig: "@devy____08", img: dbFoto["Devi Kurniasari"] },
-            { name: "Elok Iis N.", nim: "2511060", ig: "@dhe.el", img: dbFoto["Elok Iis N."] },
-            { name: "Farihatul Azizah", nim: "2511037", ig: "@fariha_aziizah", img: dbFoto["Farihatul Azizah"] },
-            { name: "Hanan Tsuroya A.", nim: "2511073", ig: "@hanan_akyasi", img: dbFoto["Hanan Tsuroya A."] },
-            { name: "Hanni Hasanati", nim: "2511068", ig: "@hannihsnt_", img: dbFoto["Hanni Hasanati"] },
-            { name: "Jembar Juli Y.", nim: "2511049", ig: "@jembarjulyy_", img: dbFoto["Jembar Juli Y."] },
-            { name: "Lusi Rahmah O.", nim: "2511080", ig: "@lusioktaviara", img: dbFoto["Lusi Rahmah O."] },
-            { name: "M. Hanif Fakhry", nim: "2511079", ig: "@hann_id1028", img: dbFoto["M. Hanif Fakhry"] },
-            { name: "Pniel Munandar", nim: "2511053", ig: "@pniel76", img: dbFoto["Pniel Munandar"] },
-            { name: "Putri Dwi Astuti", nim: "2511061", ig: "@putridwia12_", img: dbFoto["Putri Dwi Astuti"] },
-            { name: "Riska Ayu K.", nim: "2511039", ig: "@baiza_salma", img: dbFoto["Riska Ayu K."] },
-            { name: "Siti Ulfatur R.", nim: "2511077", ig: "@sssittt_____", img: dbFoto["Siti Ulfatur R."] },
-            { name: "Tsabita Hasna H.", nim: "2511071", ig: "@tsabitahasna.__", img: dbFoto["Tsabita Hasna H."] },
-            { name: "Ubaidillah M.", nim: "2511064", ig: "@muss_tffa", img: dbFoto["Ubaidillah M."] },
-            { name: "Yoana Dian R.A.", nim: "2511054", ig: "@yoana.diaan", img: dbFoto["Yoana Dian R.A."] },
-            { name: "Youvischa Aulia A.", nim: "2511057", ig: "@youvischa_sinta", img: dbFoto["Youvischa Aulia A."] },
-            { name: "Yuyun Lutfiyatul K.", nim: "2511051", ig: "@yuyunltfykh_", img: dbFoto["Yuyun Lutfiyatul K."] },
-            { name: "Zain Nur Fadilah", nim: "2511076", ig: "@Artyzeen08", img: dbFoto["Zain Nur Fadilah"] }
-        ];
 
         const semesterList = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
         let currentSemesterIndex = 0;
@@ -218,7 +190,6 @@
         let semesterData = {}; 
         let SERVER_PASSWORD = ""; 
 
-        // Fungsi Masuk Fullscreen
         function enterFullscreen() {
             const elem = document.documentElement;
             if (elem.requestFullscreen) {
@@ -231,40 +202,46 @@
         }
 
         window.onload = function() {
-            generateStudents();
             updateSemesterDisplay();
             loadStructureData(); 
             
             document.getElementById('input-name').addEventListener('keypress', (e) => { if (e.key === 'Enter') initiateAction('save'); });
             document.getElementById('admin-password').addEventListener('keypress', (e) => { if (e.key === 'Enter') confirmAction(); });
 
-            // FULLSCREEN LOGIC
-            // 1. Coba otomatis (akan diblokir di banyak browser modern)
             enterFullscreen();
-
-            // 2. Fallback: Klik pertama pada body akan memicu fullscreen
             document.body.addEventListener('click', function() {
                 if (!document.fullscreenElement) {
                     enterFullscreen();
                 }
-            }, { once: true }); // Listener dihapus setelah klik pertama
+            }, { once: true });
         };
 
         async function loadStructureData() {
             try {
-                const response = await fetch(STRUCTURE_SCRIPT_URL);
+                const response = await fetch(STRUCTURE_SCRIPT_URL, { redirect: 'follow' });
+                
+                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                
                 const data = await response.json();
                 if(data.meta && data.meta.password) SERVER_PASSWORD = data.meta.password;
+                
                 semesterData[semesterList[currentSemesterIndex]] = data;
                 updateStructureUI(semesterList[currentSemesterIndex]);
-            } catch (error) { console.error("Load failed:", error); }
+                
+            } catch (error) { 
+                console.warn("Mode Offline aktif (Gagal mengambil data dari server):", error);
+                if (!semesterData[semesterList[currentSemesterIndex]]) {
+                    semesterData[semesterList[currentSemesterIndex]] = getSemesterData(semesterList[currentSemesterIndex]);
+                }
+                updateStructureUI(semesterList[currentSemesterIndex]);
+            }
         }
 
         function getSemesterData(sem) {
             if (!semesterData[sem]) {
                 semesterData[sem] = { 
-                    main: { ketua: { name: "", img: "" }, sek1: { name: "", img: "" }, sek2: { name: "", img: "" }, ben: { name: "", img: "" } },
-                    executor: { koor: { name: "", img: "" }, div_kreatif: Array(6).fill({name: "", img: ""}), div_kebersihan: Array(5).fill({name: "", img: ""}), div_sosial: Array(6).fill({name: "", img: ""}) }
+                    main: { ketua: { name: "", img: "", nim: "" }, sek1: { name: "", img: "", nim: "" }, sek2: { name: "", img: "", nim: "" }, ben: { name: "", img: "", nim: "" } },
+                    executor: { koor: { name: "", img: "", nim: "" }, div_kreatif: Array(6).fill({name: "", img: "", nim: ""}), div_kebersihan: Array(5).fill({name: "", img: "", nim: ""}), div_sosial: Array(6).fill({name: "", img: "", nim: ""}) }
                 };
             }
             return semesterData[sem];
@@ -308,25 +285,38 @@
             const input = document.getElementById('input-name');
             const newName = isClear ? "" : input.value.trim();
             const { type, key, index } = currentEditTarget;
-            
-            let newImg = isClear ? "" : (dbFoto[newName] || `https://ui-avatars.com/api/?name=${encodeURIComponent(newName)}&background=300505&color=ffffff&bold=true`);
-            const sem = semesterList[currentSemesterIndex];
-            const data = getSemesterData(sem);
-            const newData = { name: newName, img: newImg };
 
-            // UPDATE UI LOKAL
-            if (type === 'main') {
-                data.main[key] = newData;
-                renderMainStructure(data.main);
-            } else {
-                if (index !== null) data.executor[key][index] = newData;
-                else data.executor[key] = newData;
-                if(document.getElementById('team-executor-modal').classList.contains('open')) {
-                    renderTeamExecutorTree(data.executor);
+            const sem = semesterList[currentSemesterIndex];
+            const currentDataObj = getSemesterData(sem);
+            
+            let matchedImg = "";
+            let matchedNim = "";
+
+            if (!isClear && newName) {
+                const foundKey = Object.keys(dbMahasiswa).find(k => k.toLowerCase() === newName.toLowerCase());
+                
+                if (foundKey) {
+                    matchedImg = dbMahasiswa[foundKey].img;
+                    matchedNim = dbMahasiswa[foundKey].nim;
+                } else {
+                    matchedImg = `https://ui-avatars.com/api/?name=${encodeURIComponent(newName)}&background=300505&color=ffffff&bold=true`;
+                    matchedNim = "-"; 
                 }
             }
 
-            // Kirim ke Google Script dengan password
+            const newData = { name: newName, img: matchedImg, nim: matchedNim };
+
+            if (type === 'main') {
+                currentDataObj.main[key] = newData;
+                renderMainStructure(currentDataObj.main);
+            } else {
+                if (index !== null) currentDataObj.executor[key][index] = newData;
+                else currentDataObj.executor[key] = newData;
+                if(document.getElementById('team-executor-modal').classList.contains('open')) {
+                    renderTeamExecutorTree(currentDataObj.executor);
+                }
+            }
+
             try {
                 await fetch(STRUCTURE_SCRIPT_URL, {
                     method: 'POST', mode: 'no-cors', 
@@ -335,7 +325,8 @@
                         key, 
                         index, 
                         name: newData.name, 
-                        img: newData.img 
+                        img: newData.img,
+                        nim: newData.nim
                     })
                 });
             } catch (e) { console.error("Sync Error:", e); }
@@ -364,14 +355,14 @@
             const container = document.getElementById('structure-content-container'); 
             if (sem === "I") {
                 const data = { 
-                    ketua: { name: "Ubaidillah M.", img: dbFoto["Ubaidillah M."] }, 
-                    wakil: { name: "Pniel Munandar", img: dbFoto["Pniel Munandar"] }, 
-                    sek1: { name: "Riska Ayu K.", img: dbFoto["Riska Ayu K."] }, 
-                    sek2: { name: "Yoana Dian R.A.", img: dbFoto["Yoana Dian R.A."] }, 
-                    ben1: { name: "Putri Dwi Astuti", img: dbFoto["Putri Dwi Astuti"] }, 
-                    ben2: { name: "Anggun Lolyka H.", img: dbFoto["Anggun Lolyka H."] } 
+                    ketua: { name: "Ubaidillah Musthofa", img: "Ubaidillah.jpg", nim: "2511064" }, 
+                    wakil: { name: "Pniel Munandar", img: "Pniel.jpg", nim: "2511053" }, 
+                    sek1: { name: "Riska Ayu Kesuma", img: "Ayu.jpg", nim: "2511039" }, 
+                    sek2: { name: "Yoana Dian Riski Astuti", img: "Yoana.jpg", nim: "2511054" }, 
+                    ben1: { name: "Putri Dwi Astuti", img: "Putri.jpg", nim: "2511061" }, 
+                    ben2: { name: "Anggun Lolyka Hastuti", img: "Anggun.jpg", nim: "2511043" } 
                 };
-                container.innerHTML = `<div class="tree"><ul><li>${createStaticCard(data.ketua.img, data.ketua.name, "Ketua")}<ul><li>${createStaticCard(data.wakil.img, data.wakil.name, "Wakil")}<ul><li><div class="flex flex-col gap-2">${createStaticCard(data.sek1.img, data.sek1.name, "Sekretaris 1")}${createStaticCard(data.sek2.img, data.sek2.name, "Sekretaris 2")}</div></li><li><div class="flex flex-col gap-2">${createStaticCard(data.ben1.img, data.ben1.name, "Bendahara 1")}${createStaticCard(data.ben2.img, data.ben2.name, "Bendahara 2")}</div></li></ul></li></ul></li></ul></div>`; 
+                container.innerHTML = `<div class="tree"><ul><li>${createStaticCard(data.ketua.img, data.ketua.name, data.ketua.nim, "Ketua")}<ul><li>${createStaticCard(data.wakil.img, data.wakil.name, data.wakil.nim, "Wakil")}<ul><li><div class="flex flex-col gap-6">${createStaticCard(data.sek1.img, data.sek1.name, data.sek1.nim, "Sekretaris 1")}${createStaticCard(data.sek2.img, data.sek2.name, data.sek2.nim, "Sekretaris 2")}</div></li><li><div class="flex flex-col gap-6">${createStaticCard(data.ben1.img, data.ben1.name, data.ben1.nim, "Bendahara 1")}${createStaticCard(data.ben2.img, data.ben2.name, data.ben2.nim, "Bendahara 2")}</div></li></ul></li></ul></li></ul></div>`; 
             } else {
                 renderMainStructure(getSemesterData(sem).main);
             }
@@ -379,49 +370,114 @@
 
         function renderMainStructure(dataMain) {
             const container = document.getElementById('structure-content-container');
-            container.innerHTML = `<div class="tree"><ul><li>${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}<ul><li><div class="text-[10px] text-blue-400 font-tech mb-2">SEKRETARIS</div><div class="flex gap-2">${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}</div></li><li><div class="text-[10px] text-emerald-400 font-tech mb-2">BENDAHARA</div>${createDynamicCard('ben', "Bendahara", dataMain.ben)}</li></ul></li></ul></div>`;
+            container.innerHTML = `
+            <div class="tree">
+                <ul>
+                    <li>
+                        <div class="flex flex-col items-center">
+                             <div class="w-48 bg-gray-900/40 border border-gray-500/30 rounded-xl py-2 text-center mb-4 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                                <div class="text-white text-sm font-bold font-tech uppercase tracking-[0.2em]">KETUA</div>
+                            </div>
+                            ${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}
+                        </div>
+                        <ul>
+                            <li>
+                                <div class="flex flex-col items-center">
+                                    <div class="w-full max-w-xs bg-blue-900/20 border border-blue-500/30 rounded-xl py-2 text-center mb-4 shadow-[0_0_15px_rgba(96,165,250,0.1)] px-8">
+                                        <div class="text-blue-400 text-sm font-bold font-tech uppercase tracking-[0.2em]">SEKRETARIS</div>
+                                    </div>
+                                    <div class="flex gap-8 justify-center">${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}</div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="flex flex-col items-center">
+                                    <div class="w-full max-w-xs bg-emerald-900/20 border border-emerald-500/30 rounded-xl py-2 text-center mb-4 shadow-[0_0_15px_rgba(52,211,153,0.1)] px-8">
+                                        <div class="text-emerald-400 text-sm font-bold font-tech uppercase tracking-[0.2em]">BENDAHARA</div>
+                                    </div>
+                                    ${createDynamicCard('ben', "Bendahara", dataMain.ben)}
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>`;
         }
 
         function renderTeamExecutorTree(dataEx) {
             const container = document.getElementById('executor-tree-container');
-            container.innerHTML = `<ul><li>${createDynamicCard('koor', "Koordinator", dataEx.koor, 'executor')}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                    <div class="flex flex-col items-center gap-2"><div class="text-orange-400 text-[10px] font-tech mb-1 uppercase">KREATIF</div>${dataEx.div_kreatif.map((m, i) => createDynamicCard('div_kreatif', `Staff ${i+1}`, m, 'executor', i)).join('')}</div>
-                    <div class="flex flex-col items-center gap-2"><div class="text-red-400 text-[10px] font-tech mb-1 uppercase">KEBERSIHAN</div>${dataEx.div_kebersihan.map((m, i) => createDynamicCard('div_kebersihan', `Staff ${i+1}`, m, 'executor', i)).join('')}</div>
-                    <div class="flex flex-col items-center gap-2"><div class="text-yellow-400 text-[10px] font-tech mb-1 uppercase">SOSIAL</div>${dataEx.div_sosial.map((m, i) => createDynamicCard('div_sosial', `Staff ${i+1}`, m, 'executor', i)).join('')}</div>
-                </div>
-            </li></ul>`;
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-16 mt-10 w-full max-w-7xl">
+                    <div class="flex flex-col items-center gap-6">
+                        <div class="w-full bg-orange-900/20 border border-orange-500/30 rounded-xl py-3 text-center mb-2 shadow-[0_0_15px_rgba(251,146,60,0.1)]">
+                            <div class="text-orange-400 text-xl font-bold font-tech uppercase tracking-[0.2em]">KREATIF</div>
+                        </div>
+                        <div class="flex flex-wrap justify-center gap-6">${dataEx.div_kreatif.map((m, i) => createDynamicCard('div_kreatif', `Inovation Team ${i+1}`, m, 'executor', i)).join('')}</div>
+                    </div>
+                    <div class="flex flex-col items-center gap-6">
+                         <div class="w-full bg-red-900/20 border border-red-500/30 rounded-xl py-3 text-center mb-2 shadow-[0_0_15px_rgba(248,113,113,0.1)]">
+                            <div class="text-red-400 text-xl font-bold font-tech uppercase tracking-[0.2em]">KEBERSIHAN</div>
+                        </div>
+                        <div class="flex flex-wrap justify-center gap-6">${dataEx.div_kebersihan.map((m, i) => createDynamicCard('div_kebersihan', `Sanitation Team ${i+1}`, m, 'executor', i)).join('')}</div>
+                    </div>
+                    <div class="flex flex-col items-center gap-6">
+                         <div class="w-full bg-yellow-900/20 border border-yellow-500/30 rounded-xl py-3 text-center mb-2 shadow-[0_0_15px_rgba(250,204,21,0.1)]">
+                            <div class="text-yellow-400 text-xl font-bold font-tech uppercase tracking-[0.2em]">SOSIAL</div>
+                        </div>
+                        <div class="flex flex-wrap justify-center gap-6">${dataEx.div_sosial.map((m, i) => createDynamicCard('div_sosial', `Concern Team ${i+1}`, m, 'executor', i)).join('')}</div>
+                    </div>
+                </div>`;
         }
 
-        function createStaticCard(img, name, role) { 
-            return `<div class="glass-panel p-2 rounded-xl inline-block w-28 md:w-40 mx-1 mb-2"><div class="w-12 h-12 md:w-16 md:h-16 mx-auto rounded-full mb-2 overflow-hidden border-2 border-red-500"><img src="${img}" class="w-full h-full object-cover"></div><h3 class="font-bold text-white text-[10px] md:text-xs">${name}</h3><p class="text-[8px] text-gray-500 uppercase">${role}</p></div>`; 
+        function createStaticCard(img, name, nim, role) { 
+            return `
+            <div class="glass-panel p-4 rounded-2xl inline-flex flex-col card-container mx-2 mb-4 justify-between">
+                <div class="flex-grow flex items-center justify-center w-full">
+                    <div class="w-20 h-20 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-red-500 shadow-lg group">
+                        <img src="${img}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=300505&color=ffffff&bold=true'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                    </div>
+                </div>
+                <div class="flex flex-col items-center w-full">
+                    <h3 class="font-bold text-white text-xs md:text-sm leading-tight text-center mb-1 px-1 line-clamp-2">${name}</h3>
+                    <p class="text-red-500 text-[10px] md:text-xs font-tech font-bold tracking-wider mb-2">${nim || "-"}</p>
+                    <p class="text-[10px] md:text-xs text-gray-400 uppercase tracking-wider pt-3 border-t border-white/10 w-full text-center">${role}</p>
+                </div>
+            </div>`; 
         }
 
         function createDynamicCard(key, label, data, type = 'main', index = null) {
             const name = data?.name || "";
-            const img = name ? (data.img || dbFoto[name] || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=300505&color=ffffff`) : "";
+            const nim = data?.nim || "";
+            const img = name ? (data.img || "https://ui-avatars.com/api/?name=User&background=300505&color=ffffff") : "";
             const params = `'${type}', '${key}'${index !== null ? `, ${index}` : ''}`;
 
-            // Kondisi jika data masih KOSONG
             if (!name) return `
-                <div class="glass-panel empty-slot p-3 rounded-xl inline-flex flex-col card-container cursor-pointer mx-1 mb-2 group overflow-hidden" onclick="openEditModal(${params})">
+                <div class="glass-panel empty-slot p-4 rounded-2xl inline-flex flex-col card-container cursor-pointer mx-2 mb-4 group overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(220,38,38,0.3)]" onclick="openEditModal(${params})">
                     <div class="flex-grow flex flex-col items-center justify-center">
-                        <div class="w-10 h-10 rounded-full mb-2 flex items-center justify-center border border-dashed border-gray-600 text-gray-600 group-hover:text-red-500 group-hover:border-red-500 transition-colors">
+                        <div class="w-20 h-20 md:w-32 md:h-32 rounded-full mb-3 flex items-center justify-center border-2 border-dashed border-gray-600 text-gray-600 group-hover:text-red-500 group-hover:border-red-500 transition-colors text-3xl">
                             <i class="fas fa-plus"></i>
                         </div>
-                        <span class="text-[10px] text-gray-600 group-hover:text-red-400 transition-colors">Isi Data</span>
+                        <span class="text-xs md:text-sm text-gray-500 group-hover:text-red-400 transition-colors font-semibold uppercase tracking-wider">Isi Data</span>
                     </div>
-                    <p class="text-[8px] text-gray-700 uppercase mt-auto flex-shrink-0 pt-2 border-t border-white/5">${label}</p>
+                    <p class="text-[10px] md:text-xs text-gray-600 uppercase mt-auto flex-shrink-0 pt-3 border-t border-white/5 tracking-wider w-full text-center">${label}</p>
                 </div>`;
 
-            // Kondisi jika data SUDAH TERISI
             return `
-                <div class="glass-panel p-3 rounded-xl inline-flex flex-col items-center card-container cursor-pointer mx-1 mb-2 group" onclick="openEditModal(${params})">
-                    <img src="${img}" class="w-12 h-12 md:w-16 md:h-16 object-cover rounded-full border-2 border-gray-600 group-hover:border-red-500 mb-2 flex-shrink-0 transition-all duration-300">
-                    <div class="flex flex-col justify-center flex-grow w-full">
-                        <h3 class="font-bold text-white text-[10px] md:text-xs leading-tight line-clamp-2 text-center mb-1 px-1">${name}</h3>
+                <div class="glass-panel p-4 rounded-2xl inline-flex flex-col card-container cursor-pointer mx-2 mb-4 group transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(220,38,38,0.4)] hover:border-red-500/50 justify-between" onclick="openEditModal(${params})">
+                    
+                    <!-- Wrapper Foto (Center Vertikal di ruang atas) -->
+                    <div class="flex-grow flex items-center justify-center w-full">
+                        <img src="${img}" class="w-20 h-20 md:w-32 md:h-32 object-cover rounded-full border-2 border-gray-500 group-hover:border-red-500 flex-shrink-0 transition-all duration-300 shadow-lg">
                     </div>
-                    <p class="text-[8px] text-red-400 uppercase font-tech mt-auto flex-shrink-0 pt-2 border-t border-white/5 w-full">${label}</p>
+
+                    <!-- Wrapper Teks (Nama, NIM, Jabatan) -->
+                    <div class="flex flex-col items-center w-full">
+                        <h3 class="font-bold text-white text-xs md:text-sm leading-tight line-clamp-2 text-center mb-1 px-1 group-hover:text-red-200 transition-colors">${name}</h3>
+                        
+                        <!-- NIM TEXT RED -->
+                        <p class="text-red-500 text-[10px] md:text-xs font-tech font-bold tracking-wider mb-2 group-hover:text-red-400 transition-colors">${nim || "-"}</p>
+                        
+                        <p class="text-[10px] md:text-xs text-red-400 uppercase font-tech pt-3 border-t border-white/10 w-full tracking-wider group-hover:text-red-300 text-center">${label}</p>
+                    </div>
                 </div>`;
         }
 
@@ -439,7 +495,7 @@
                 form.classList.add('hidden');
                 preview.classList.remove('hidden');
                 preview.classList.add('flex');
-                document.getElementById('preview-img').src = target.img || dbFoto[target.name] || "";
+                document.getElementById('preview-img').src = target.img || "https://ui-avatars.com/api/?name=User";
                 document.getElementById('preview-name').innerText = target.name;
             } else {
                 form.classList.remove('hidden');
@@ -450,15 +506,21 @@
         }
 
         function closeEditModal() { document.getElementById('edit-modal').classList.remove('active'); }
+        
         function toggleTeamExecutor() { 
             const m = document.getElementById('team-executor-modal');
-            if(m.classList.contains('open')) m.classList.remove('open');
-            else { renderTeamExecutorTree(getSemesterData(semesterList[currentSemesterIndex]).executor); m.classList.add('open'); }
-        }
-        function toggleFamilyGallery() { document.getElementById('family-gallery').classList.toggle('open'); }
-        function generateStudents() { 
-            let h = ''; studentsData.forEach((s, i) => { h += `<div class="cursor-pointer group"><div class="relative rounded-xl aspect-square overflow-hidden bg-gray-900 border-2 border-transparent group-hover:border-red-500"><img src="${s.img}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all"><div class="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black"><p class="text-white font-bold text-[10px] truncate">${s.name}</p></div></div></div>`; });
-            document.getElementById('student-grid').innerHTML = h;
+            const mainContent = document.getElementById('main-content-wrapper');
+
+            if(m.classList.contains('open')) {
+                m.classList.remove('open');
+                mainContent.classList.remove('blur-content');
+                document.body.style.overflow = ''; // Balikin scroll body
+            } else {
+                renderTeamExecutorTree(getSemesterData(semesterList[currentSemesterIndex]).executor); 
+                m.classList.add('open');
+                mainContent.classList.add('blur-content');
+                document.body.style.overflow = 'hidden'; // Kunci scroll body
+            }
         }
     </script>
 </body>
