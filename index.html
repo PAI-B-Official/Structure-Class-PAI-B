@@ -403,7 +403,21 @@
                     ben1: { name: "Putri Dwi Astuti", img: "Putri.jpg", nim: "2511061" }, 
                     ben2: { name: "Anggun Lolyka Hastuti", img: "Anggun.jpg", nim: "2511043" } 
                 };
-                container.innerHTML = `<div class="tree"><ul><li>${createStaticCard(data.ketua.img, data.ketua.name, data.ketua.nim, "Ketua")}<ul><li>${createStaticCard(data.wakil.img, data.wakil.name, data.wakil.nim, "Wakil")}<ul><li><div class="flex flex-col gap-6">${createStaticCard(data.sek1.img, data.sek1.name, data.sek1.nim, "Sekretaris 1")}${createStaticCard(data.sek2.img, data.sek2.name, data.sek2.nim, "Sekretaris 2")}</div></li><li><div class="flex flex-col gap-6">${createStaticCard(data.ben1.img, data.ben1.name, data.ben1.nim, "Bendahara 1")}${createStaticCard(data.ben2.img, data.ben2.name, data.ben2.nim, "Bendahara 2")}</div></li></ul></li></ul></li></ul></div>`; 
+                container.innerHTML = `
+                <div class="flex flex-col items-center w-full gap-10 mt-4">
+                    <div class="flex justify-center">
+                        ${createStaticCard(data.ketua.img, data.ketua.name, data.ketua.nim, "Ketua")}
+                    </div>
+                    <div class="flex justify-center">
+                        ${createStaticCard(data.wakil.img, data.wakil.name, data.wakil.nim, "Wakil")}
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-8 md:gap-12">
+                        ${createStaticCard(data.sek1.img, data.sek1.name, data.sek1.nim, "Sekretaris 1")}
+                        ${createStaticCard(data.sek2.img, data.sek2.name, data.sek2.nim, "Sekretaris 2")}
+                        ${createStaticCard(data.ben1.img, data.ben1.name, data.ben1.nim, "Bendahara 1")}
+                        ${createStaticCard(data.ben2.img, data.ben2.name, data.ben2.nim, "Bendahara 2")}
+                    </div>
+                </div>`;
             } else {
                 renderMainStructure(getSemesterData(sem).main);
             }
@@ -502,7 +516,7 @@
                     </div>
 
                     <div class="flex flex-col items-center w-full">
-                        <h3 class="font-bold text-white text-xs md:text-sm leading-tight line-clamp-2 text-center mb-1 px-1 group-hover:text-red-200 transition-colors">${name}</h3>
+                        <h3 class="font-bold text-white text-xs md:text-sm leading-tight text-center mb-1 px-1 group-hover:text-red-200 transition-colors">${name}</h3>
                         <p class="text-red-500 text-[10px] md:text-xs font-tech font-bold tracking-wider mb-2 group-hover:text-red-400 transition-colors">${nim || "-"}</p>
                         <p class="text-[10px] md:text-xs text-red-400 uppercase font-tech pt-3 border-t border-white/10 w-full tracking-wider group-hover:text-red-300 text-center">${label}</p>
                     </div>
