@@ -50,16 +50,19 @@
         .empty-slot { border: 1px dashed rgba(150, 150, 150, 0.3); background: rgba(20, 0, 0, 0.2); }
         .empty-slot:hover { border-color: #ef4444; border-style: solid; }
         
+        /* Updated Card Size */
         .card-container { width: 150px; height: 240px; }
         @media (min-width: 768px) { .card-container { width: 240px; height: 360px; } }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
+        /* CUSTOM SCROLLBAR MERAH */
         ::-webkit-scrollbar { width: 12px; }
         ::-webkit-scrollbar-track { background: #0f0505; }
         ::-webkit-scrollbar-thumb { background: #8a0000; border-radius: 6px; border: 2px solid #0f0505; }
         ::-webkit-scrollbar-thumb:hover { background: #ff0000; }
         * { scrollbar-width: thin; scrollbar-color: #8a0000 #0f0505; }
         
+        /* Blur transition class */
         .blur-content { filter: blur(8px); pointer-events: none; user-select: none; transition: filter 0.3s ease; }
     </style>
 </head>
@@ -69,6 +72,7 @@
         <div class="absolute inset-0 bg-gradient-to-b from-black via-[#1a0000] to-black opacity-80"></div>
     </div>
 
+    <!-- WRAPPER UTAMA UNTUK EFEK BLUR -->
     <div id="main-content-wrapper" class="transition-all duration-300">
         <main class="min-h-screen pt-10 px-4 md:px-8 max-w-7xl mx-auto w-full">
             <section id="structure" class="py-10 relative min-h-[600px]">
@@ -88,6 +92,7 @@
 
                 <div id="structure-content-container" class="w-full overflow-x-auto padding-bottom-2rem flex justify-center min-h-[500px] py-8"></div>
 
+                <!-- BUTTON TEAM EXECUTOR -->
                 <div class="text-center pb-12 mt-8 flex flex-col gap-4 items-center">
                      <button id="btn-team-executor" onclick="toggleTeamExecutor()" class="px-10 py-4 bg-gradient-to-r from-orange-700 to-black rounded-xl border border-orange-500/50 shadow-lg hover:shadow-orange-600/40 transition-all hidden group hover:scale-105 cursor-pointer z-10">
                         <div class="flex items-center gap-3">
@@ -100,6 +105,7 @@
         </main>
     </div>
 
+    <!-- MODAL TEAM EXECUTOR -->
     <div id="team-executor-modal" class="fullscreen-overlay">
         <div class="w-full min-h-screen pt-10 pb-10 flex flex-col">
              <button onclick="toggleTeamExecutor()" class="fixed top-4 right-4 z-[200] bg-black/50 hover:bg-red-600 text-white w-14 h-14 rounded-full border-2 border-red-500/30 flex items-center justify-center shadow-lg text-xl transition-all cursor-pointer"><i class="fas fa-times"></i></button>
@@ -108,6 +114,7 @@
         </div>
     </div>
 
+    <!-- MODAL PASSWORD -->
     <div id="password-modal" class="custom-modal">
         <div class="bg-[#0f0505] border-2 border-red-800 rounded-2xl p-8 max-w-xs w-full mx-4 shadow-[0_0_50px_rgba(139,0,0,0.5)] text-center">
             <div class="mb-6">
@@ -124,6 +131,7 @@
         </div>
     </div>
 
+    <!-- MODAL EDIT / PREVIEW -->
     <div id="edit-modal" class="edit-modal">
         <div class="bg-[#0f0505] border-2 border-red-800 rounded-3xl p-8 max-w-sm w-full mx-4 shadow-[0_0_60px_rgba(200,0,0,0.3)] relative">
             <button onclick="closeEditModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white transition-colors"><i class="fas fa-times text-2xl"></i></button>
@@ -154,7 +162,7 @@
     </div>
 
     <script>
-        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGg7wbYsOle_Xat-rsuZyoH1M9aG5f4ijQP_FKfK_AtP9DYCOMhCeelJA4Woa-zGTu7Q/exec";
+        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbym5toFgMseIHyWG4Kg9b0WbKz___dundWq7_aHngjk0qrWIf1Tynk0Nnx8wbEM5gqfyg/exec";
 
         const dbMahasiswa = {
             "Ady Surya": { img: "https://lh3.googleusercontent.com/d/1z5JRHNaprGcbhl1d5dxNKW1Y4CGVGa-A", nim: "2511038" },
@@ -189,6 +197,7 @@
         let pendingAction = null; 
         let semesterData = {}; 
         let SERVER_PASSWORD = ""; 
+        const LOCAL_STORAGE_KEY = "pai_structure_data_v1";
 
         function enterFullscreen() {
             const elem = document.documentElement;
@@ -202,8 +211,11 @@
         }
 
         window.onload = function() {
+            // LOAD DARI LOCAL STORAGE DULU (AGAR CEPAT & TERSIMPAN SAAT REFRESH)
+            loadFromLocal();
+            
             updateSemesterDisplay();
-            loadStructureData(); 
+            loadStructureData(); // Background fetch untuk sync terbaru
             
             document.getElementById('input-name').addEventListener('keypress', (e) => { if (e.key === 'Enter') initiateAction('save'); });
             document.getElementById('admin-password').addEventListener('keypress', (e) => { if (e.key === 'Enter') confirmAction(); });
@@ -216,20 +228,41 @@
             }, { once: true });
         };
 
+        // --- LOCAL STORAGE FUNCTIONS ---
+        function saveToLocal() {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(semesterData));
+        }
+
+        function loadFromLocal() {
+            const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (savedData) {
+                try {
+                    semesterData = JSON.parse(savedData);
+                } catch (e) {
+                    console.error("Gagal parsing data lokal", e);
+                }
+            }
+        }
+        // --------------------------------
+
         async function loadStructureData() {
             try {
                 const response = await fetch(STRUCTURE_SCRIPT_URL, { redirect: 'follow' });
-                
                 if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
                 
                 const data = await response.json();
                 if(data.meta && data.meta.password) SERVER_PASSWORD = data.meta.password;
                 
+                // Update data untuk semester selain 1 (karena 1 hardcoded)
                 semesterData[semesterList[currentSemesterIndex]] = data;
+                
+                // Simpan versi terbaru dari server ke lokal
+                saveToLocal();
+                
                 updateStructureUI(semesterList[currentSemesterIndex]);
                 
             } catch (error) { 
-                console.warn("Mode Offline aktif (Gagal mengambil data dari server):", error);
+                console.warn("Mode Offline / Gagal Fetch. Menggunakan data lokal.", error);
                 if (!semesterData[semesterList[currentSemesterIndex]]) {
                     semesterData[semesterList[currentSemesterIndex]] = getSemesterData(semesterList[currentSemesterIndex]);
                 }
@@ -308,15 +341,22 @@
 
             if (type === 'main') {
                 currentDataObj.main[key] = newData;
-                renderMainStructure(currentDataObj.main);
             } else {
                 if (index !== null) currentDataObj.executor[key][index] = newData;
                 else currentDataObj.executor[key] = newData;
-                if(document.getElementById('team-executor-modal').classList.contains('open')) {
-                    renderTeamExecutorTree(currentDataObj.executor);
-                }
             }
 
+            // SIMPAN KE LOKAL (Instant Update & Persistence)
+            saveToLocal();
+
+            // UPDATE UI
+            if (type === 'main') {
+                renderMainStructure(currentDataObj.main);
+            } else if(document.getElementById('team-executor-modal').classList.contains('open')) {
+                renderTeamExecutorTree(currentDataObj.executor);
+            }
+
+            // KIRIM KE SERVER (Background Sync)
             try {
                 await fetch(STRUCTURE_SCRIPT_URL, {
                     method: 'POST', mode: 'no-cors', 
@@ -354,6 +394,7 @@
         function updateStructureUI(sem) { 
             const container = document.getElementById('structure-content-container'); 
             if (sem === "I") {
+                // SEMESTER I TETAP STATIC (HARDCODED) - TIDAK DIPENGARUHI LOCAL STORAGE / DB
                 const data = { 
                     ketua: { name: "Ubaidillah Musthofa", img: "Ubaidillah.jpg", nim: "2511064" }, 
                     wakil: { name: "Pniel Munandar", img: "Pniel.jpg", nim: "2511053" }, 
@@ -370,36 +411,28 @@
 
         function renderMainStructure(dataMain) {
             const container = document.getElementById('structure-content-container');
+            // Menghilangkan class tree dan struktur list untuk menghapus garis
+            // Menghilangkan div header (title divisi berkolom)
             container.innerHTML = `
-            <div class="tree">
-                <ul>
-                    <li>
-                        <div class="flex flex-col items-center">
-                             <div class="w-48 bg-gray-900/40 border border-gray-500/30 rounded-xl py-2 text-center mb-4 shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-                                <div class="text-white text-sm font-bold font-tech uppercase tracking-[0.2em]">KETUA</div>
-                            </div>
-                            ${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}
-                        </div>
-                        <ul>
-                            <li>
-                                <div class="flex flex-col items-center">
-                                    <div class="w-full max-w-xs bg-blue-900/20 border border-blue-500/30 rounded-xl py-2 text-center mb-4 shadow-[0_0_15px_rgba(96,165,250,0.1)] px-8">
-                                        <div class="text-blue-400 text-sm font-bold font-tech uppercase tracking-[0.2em]">SEKRETARIS</div>
-                                    </div>
-                                    <div class="flex gap-8 justify-center">${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}</div>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="flex flex-col items-center">
-                                    <div class="w-full max-w-xs bg-emerald-900/20 border border-emerald-500/30 rounded-xl py-2 text-center mb-4 shadow-[0_0_15px_rgba(52,211,153,0.1)] px-8">
-                                        <div class="text-emerald-400 text-sm font-bold font-tech uppercase tracking-[0.2em]">BENDAHARA</div>
-                                    </div>
-                                    ${createDynamicCard('ben', "Bendahara", dataMain.ben)}
-                                </div>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+            <div class="flex flex-col items-center w-full gap-12 mt-4">
+                <!-- Ketua Layer -->
+                <div class="flex justify-center">
+                    ${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}
+                </div>
+                
+                <!-- Bawahan Layer (Sekretaris & Bendahara) -->
+                <div class="flex flex-wrap justify-center gap-12 md:gap-24">
+                    <!-- Sekretaris -->
+                    <div class="flex gap-6 justify-center">
+                        ${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}
+                        ${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}
+                    </div>
+                    
+                    <!-- Bendahara -->
+                    <div class="flex gap-6 justify-center">
+                        ${createDynamicCard('ben', "Bendahara", dataMain.ben)}
+                    </div>
+                </div>
             </div>`;
         }
 
@@ -464,18 +497,13 @@
             return `
                 <div class="glass-panel p-4 rounded-2xl inline-flex flex-col card-container cursor-pointer mx-2 mb-4 group transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(220,38,38,0.4)] hover:border-red-500/50 justify-between" onclick="openEditModal(${params})">
                     
-                    <!-- Wrapper Foto (Center Vertikal di ruang atas) -->
                     <div class="flex-grow flex items-center justify-center w-full">
                         <img src="${img}" class="w-20 h-20 md:w-32 md:h-32 object-cover rounded-full border-2 border-gray-500 group-hover:border-red-500 flex-shrink-0 transition-all duration-300 shadow-lg">
                     </div>
 
-                    <!-- Wrapper Teks (Nama, NIM, Jabatan) -->
                     <div class="flex flex-col items-center w-full">
                         <h3 class="font-bold text-white text-xs md:text-sm leading-tight line-clamp-2 text-center mb-1 px-1 group-hover:text-red-200 transition-colors">${name}</h3>
-                        
-                        <!-- NIM TEXT RED -->
                         <p class="text-red-500 text-[10px] md:text-xs font-tech font-bold tracking-wider mb-2 group-hover:text-red-400 transition-colors">${nim || "-"}</p>
-                        
                         <p class="text-[10px] md:text-xs text-red-400 uppercase font-tech pt-3 border-t border-white/10 w-full tracking-wider group-hover:text-red-300 text-center">${label}</p>
                     </div>
                 </div>`;
@@ -514,12 +542,12 @@
             if(m.classList.contains('open')) {
                 m.classList.remove('open');
                 mainContent.classList.remove('blur-content');
-                document.body.style.overflow = ''; // Balikin scroll body
+                document.body.style.overflow = ''; 
             } else {
                 renderTeamExecutorTree(getSemesterData(semesterList[currentSemesterIndex]).executor); 
                 m.classList.add('open');
                 mainContent.classList.add('blur-content');
-                document.body.style.overflow = 'hidden'; // Kunci scroll body
+                document.body.style.overflow = 'hidden';
             }
         }
     </script>
