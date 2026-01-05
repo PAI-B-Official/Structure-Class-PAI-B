@@ -8,6 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CROPPER.JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -66,27 +70,19 @@
         .empty-slot:hover { border-color: #ef4444; border-style: solid; }
         
         /* CARD SIZE */
-        .card-container { 
-            width: 100%; 
-            height: auto; 
-            aspect-ratio: 9/15; 
-            margin: 0; 
-        }
-        
-        @media (min-width: 768px) { 
-            .card-container { 
-                width: 250px; 
-                height: 400px; 
-                margin: 0 auto; 
-                aspect-ratio: auto;
-            } 
-        }
+        .card-container { width: 100%; height: auto; aspect-ratio: 9/15; margin: 0; }
+        @media (min-width: 768px) { .card-container { width: 250px; height: 400px; margin: 0 auto; aspect-ratio: auto; } }
         
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f0505; }
         ::-webkit-scrollbar-thumb { background: #8a0000; border-radius: 4px; }
         .blur-content { filter: blur(5px); pointer-events: none; user-select: none; transition: filter 0.2s ease; }
+
+        /* CROPPER STYLE OVERRIDES */
+        .cropper-view-box, .cropper-face { border-radius: 0; outline: 1px solid #fff; }
+        .cropper-line, .cropper-point { background-color: #ef4444; }
+        .cropper-modal { background-color: #000; opacity: 0.8; }
     </style>
 </head>
 <body class="selection:bg-red-500 selection:text-white">
@@ -95,12 +91,10 @@
         <div class="absolute inset-0 bg-gradient-to-b from-black via-[#1a0000] to-black"></div>
     </div>
 
-    <!-- TOMBOL FULLSCREEN -->
     <button onclick="toggleFullscreen()" class="fixed bottom-6 right-6 z-50 text-white bg-red-900/90 w-12 h-12 md:w-14 md:h-14 rounded-full border border-red-500/50 hover:bg-red-700 transition-all shadow-lg flex items-center justify-center group active:scale-95">
         <i id="fs-icon" class="fas fa-expand text-lg md:text-xl"></i>
     </button>
 
-    <!-- WRAPPER UTAMA -->
     <div id="main-content-wrapper" class="transition-opacity duration-300">
         <main class="min-h-screen pt-4 md:pt-8 px-1 md:px-8 max-w-7xl mx-auto w-full">
             <section id="structure" class="py-6 relative min-h-[600px]">
@@ -108,13 +102,9 @@
                     <div class="text-center mb-6">
                         <h2 class="text-3xl md:text-6xl font-tech font-bold text-white mb-3 uppercase tracking-wider">STRUKTUR KELAS</h2>
                         <div class="h-1.5 w-24 md:w-32 bg-red-600 mx-auto rounded-full shadow-red-glow"></div>
-                        
-                        <div id="loading-indicator" class="mt-4 text-red-400 text-xs md:text-sm font-tech hidden">
-                            <i class="fas fa-circle-notch fa-spin mr-2"></i> MENGHUBUNGKAN DATABASE...
-                        </div>
+                        <div id="loading-indicator" class="mt-4 text-red-400 text-xs md:text-sm font-tech hidden"><i class="fas fa-circle-notch fa-spin mr-2"></i> MENGHUBUNGKAN...</div>
                     </div>
 
-                    <!-- NAVIGASI SEMESTER -->
                     <div class="max-w-4xl mx-auto px-2 flex flex-col items-center justify-center">
                         <div class="relative w-full max-w-xl flex items-center justify-center bg-gradient-to-r from-red-950 via-black to-red-950 h-16 md:h-20 rounded-xl border border-red-600/50 shadow-[0_0_15px_rgba(220,38,38,0.3)] overflow-hidden">
                             <button onclick="prevSemester()" id="btn-prev-sem" class="hidden md:block absolute left-0 h-full px-6 z-20 text-3xl text-red-600 hover:text-white hover:bg-red-900/30 transition-all"><i class="fas fa-chevron-left"></i></button>
@@ -123,32 +113,20 @@
                             </div>
                             <button onclick="nextSemester()" id="btn-next-sem" class="hidden md:block absolute right-0 h-full px-6 z-20 text-3xl text-red-600 hover:text-white hover:bg-red-900/30 transition-all"><i class="fas fa-chevron-right"></i></button>
                         </div>
-
-                        <!-- TOMBOL REFRESH -->
                         <button onclick="refreshData()" id="btn-refresh" class="mt-3 group relative px-4 py-2 bg-black/60 rounded-full border border-red-800/60 hover:border-red-500 hover:bg-red-950/40 transition-all active:scale-95">
-                            <div class="flex items-center gap-2 text-xs text-red-200/70 group-hover:text-white font-tech tracking-wider">
-                                <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> REFRESH DATA
-                            </div>
+                            <div class="flex items-center gap-2 text-xs text-red-200/70 group-hover:text-white font-tech tracking-wider"><i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> REFRESH</div>
                         </button>
-
-                        <div class="md:hidden mt-3 text-gray-600 text-[10px] flex items-center gap-2">
-                            <i class="fas fa-chevron-left"></i> <span>GESER UNTUK GANTI SEMESTER</span> <i class="fas fa-chevron-right"></i>
-                        </div>
+                        <div class="md:hidden mt-3 text-gray-600 text-[10px] flex items-center gap-2"><i class="fas fa-chevron-left"></i> <span>GESER UNTUK GANTI SEMESTER</span> <i class="fas fa-chevron-right"></i></div>
                     </div>
                 </div>
 
-                <!-- KONTEN STRUKTUR -->
                 <div id="structure-content-wrapper" class="transition-opacity duration-200 ease-out opacity-100">
                     <div id="structure-content-container" class="w-full overflow-x-hidden flex justify-center min-h-[500px] py-2"></div>
                 </div>
 
-                <!-- BUTTON TEAM EXECUTOR -->
                 <div id="executor-btn-container" class="text-center pb-24 mt-8 flex-col gap-4 items-center hidden">
                      <button onclick="openModalWithHistory('team-executor-modal')" class="px-8 py-3 md:px-10 md:py-4 bg-gradient-to-r from-orange-800 to-black rounded-xl border border-orange-600/50 shadow-lg hover:shadow-orange-600/30 transition-transform active:scale-95 cursor-pointer z-10 w-full max-w-xs md:w-auto">
-                        <div class="flex items-center justify-center gap-3">
-                            <i class="fas fa-network-wired text-2xl md:text-3xl text-orange-400"></i>
-                            <span class="font-tech text-lg md:text-xl font-bold text-white tracking-widest uppercase">TEAM EXECUTOR</span>
-                        </div>
+                        <div class="flex items-center justify-center gap-3"><i class="fas fa-network-wired text-2xl md:text-3xl text-orange-400"></i><span class="font-tech text-lg md:text-xl font-bold text-white tracking-widest uppercase">TEAM EXECUTOR</span></div>
                     </button>
                 </div>
             </section>
@@ -167,18 +145,12 @@
     <!-- MODAL PASSWORD -->
     <div id="password-modal" class="custom-modal">
         <div class="bg-[#0f0505] border border-red-800 rounded-xl p-6 max-w-xs w-full mx-4 shadow-2xl text-center">
-            <div class="mb-4">
-                <i class="fas fa-lock text-4xl text-red-600 mb-2"></i>
-                <h3 class="text-lg font-bold text-white font-tech uppercase tracking-widest">Masukan PIN</h3>
-            </div>
+            <div class="mb-4"><i class="fas fa-lock text-4xl text-red-600 mb-2"></i><h3 class="text-lg font-bold text-white font-tech uppercase tracking-widest">Masukan PIN</h3></div>
             <input type="password" id="admin-password" class="w-full bg-black border border-gray-700 rounded-lg py-3 px-4 text-white text-center focus:border-red-600 mb-2 tracking-[0.5em] text-lg outline-none" placeholder="••••">
             <p id="password-error" class="text-red-500 text-[10px] mb-4 hidden font-bold bg-red-900/20 py-1 rounded">PASSWORD SALAH!</p>
-            
             <div class="flex gap-3 mt-4">
                 <button onclick="closeModalWithHistory('password-modal')" class="flex-1 py-2 rounded-lg border border-gray-700 text-gray-400 text-xs font-bold uppercase hover:bg-gray-900">Batal</button>
-                <button id="btn-confirm-save" onclick="confirmAction()" class="flex-1 py-2 rounded-lg bg-red-800 text-white font-bold hover:bg-red-700 text-xs uppercase tracking-wider shadow-lg">
-                    KONFIRMASI
-                </button>
+                <button id="btn-confirm-save" onclick="confirmAction()" class="flex-1 py-2 rounded-lg bg-red-800 text-white font-bold hover:bg-red-700 text-xs uppercase tracking-wider shadow-lg">KONFIRMASI</button>
             </div>
         </div>
     </div>
@@ -187,56 +159,73 @@
     <div id="edit-modal" class="edit-modal">
         <div class="bg-[#0f0505] border border-red-800 rounded-2xl p-6 md:p-8 max-w-sm w-full mx-4 shadow-2xl relative">
             <button onclick="closeModalWithHistory('edit-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white p-2"><i class="fas fa-times text-xl"></i></button>
-
             <div id="edit-form-container">
                 <h3 class="text-xl font-bold text-white mb-4 font-tech uppercase flex items-center gap-2"><i class="fas fa-pen-to-square text-red-500"></i>LENGKAPI DATA</h3>
-                
                 <div class="mb-6">
                     <label class="block text-red-500 text-[10px] font-bold uppercase mb-2 tracking-wider">Profile Mahasiswa</label>
                     <label for="input-file" class="cursor-pointer group relative block w-full">
                         <div class="w-full aspect-square bg-black/40 border-2 border-dashed border-gray-700 rounded-xl flex items-center justify-center overflow-hidden relative" id="preview-upload-container">
-                             <div id="upload-placeholder" class="flex flex-col items-center justify-center">
-                                <i class="fas fa-camera text-gray-600 text-4xl mb-2"></i>
-                                <span class="text-[10px] text-gray-600 uppercase font-bold">Upload Foto</span>
-                             </div>
+                             <div id="upload-placeholder" class="flex flex-col items-center justify-center"><i class="fas fa-camera text-gray-600 text-4xl mb-2"></i><span class="text-[10px] text-gray-600 uppercase font-bold">Upload Foto</span></div>
                              <img id="img-preview-edit" src="" class="absolute inset-0 w-full h-full object-cover hidden">
                         </div>
-                        <canvas id="compress-canvas" class="hidden"></canvas>
                         <input type="file" id="input-file" accept="image/*" class="hidden" onchange="handleFileSelect(this)">
                     </label>
                 </div>
-
                 <div class="mb-6">
                     <label class="block text-red-500 text-[10px] font-bold uppercase mb-2 tracking-wider">Nama Lengkap</label>
-                    <input type="text" id="input-name" class="w-full bg-black/40 border border-gray-700 rounded-lg py-3 px-4 text-white focus:border-red-500 focus:outline-none placeholder-gray-700 text-sm" placeholder="Nama sesuai Database..." autocomplete="off">
-                    <p class="text-[10px] text-gray-600 mt-1">NIM otomatis dari Database</p>
+                    <input type="text" id="input-name" class="w-full bg-black/40 border border-gray-700 rounded-lg py-3 px-4 text-white focus:border-red-500 focus:outline-none placeholder-gray-700 text-sm" placeholder="Contoh : Tukiman" autocomplete="off">
+                    <p class="text-[10px] text-gray-600 mt-1">Pastikan Nama sesuai Identitas</p>
                 </div>
                 <div class="flex gap-3">
                     <button onclick="closeModalWithHistory('edit-modal')" class="flex-1 py-3 rounded-lg border border-gray-700 text-gray-500 text-xs font-bold uppercase">Batal</button>
                     <button onclick="initiateAction('save')" class="flex-1 py-3 rounded-lg bg-red-800 text-white font-bold hover:bg-red-700 text-xs uppercase tracking-wide">Simpan</button>
                 </div>
             </div>
-
             <div id="preview-container" class="hidden flex-col items-center text-center">
                 <h3 id="modal-role-title" class="text-xl font-bold text-red-500 mb-2 font-tech uppercase tracking-widest">JABATAN</h3>
-                
                 <div class="w-full aspect-square bg-gray-900 rounded-xl overflow-hidden mb-4 mt-2 border-2 border-red-900 shadow-lg relative">
                      <img id="preview-img" src="" class="w-full h-full object-cover" referrerpolicy="no-referrer">
                 </div>
                 <h4 id="preview-name" class="text-white font-bold text-xl mb-1 font-body leading-tight">Nama Siswa</h4>
                 <p id="preview-nim" class="text-red-400 font-tech text-sm mb-6 tracking-wider">NIM</p>
-                
-                <button onclick="initiateAction('delete')" class="w-full py-3 rounded-lg bg-red-900/20 border border-red-800 text-red-500 hover:bg-red-900 hover:text-white transition-colors font-bold uppercase text-xs tracking-widest flex items-center justify-center gap-2">
-                    <i class="fas fa-trash"></i> HAPUS DATA
-                </button>
+                <button onclick="initiateAction('delete')" class="w-full py-3 rounded-lg bg-red-900/20 border border-red-800 text-red-500 hover:bg-red-900 hover:text-white transition-colors font-bold uppercase text-xs tracking-widest flex items-center justify-center gap-2"><i class="fas fa-trash"></i> HAPUS DATA</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CROP -->
+    <div id="crop-modal" class="custom-modal z-[300]">
+        <div class="bg-[#0f0505] border-2 border-red-800 rounded-2xl w-full max-w-md mx-4 shadow-2xl flex flex-col h-[80vh]">
+            <div class="p-4 border-b border-red-900/30 flex justify-between items-center bg-black/50 rounded-t-2xl">
+                <h3 class="text-white font-bold font-tech tracking-wider"><i class="fas fa-crop-simple mr-2 text-red-500"></i>CROP FOTO</h3>
+                <button onclick="closeCropModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="flex-grow bg-black relative overflow-hidden flex items-center justify-center">
+                <!-- Container untuk Cropper.js -->
+                <div class="w-full h-full p-2">
+                    <img id="image-to-crop" class="max-w-full max-h-full block">
+                </div>
+            </div>
+            <div class="p-4 border-t border-red-900/30 bg-black/50 rounded-b-2xl flex gap-3">
+                <button onclick="closeCropModal()" class="flex-1 py-3 rounded-lg border border-gray-700 text-gray-400 font-bold uppercase text-xs">Batal</button>
+                <button onclick="cropAndSave()" class="flex-1 py-3 rounded-lg bg-red-700 text-white font-bold uppercase text-xs shadow-lg hover:bg-red-600">Potong & Pakai</button>
             </div>
         </div>
     </div>
 
     <script>
-        // GANTI URL DI BAWAH INI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
         const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcKGhzY2rm29bPLlvC1-sQ_oYWPtVoGADmWoVYT3LpqLjzQ3VZipI5cwosQsu3ka6H/exec";
         
+        const nicknameMap = {
+            "ady": "Ady Surya", "fikri": "Ahmad Lubadul Fikri", "alyvia": "Alyvia Qurrotal Aini", "anggun": "Anggun Lolyk Hastuti",
+            "aqilah": "Aqilah Mazaya", "arina": "Arina Manasika", "devi": "Devi Kurniasari", "elok": "Elok Iis Nurrohmah",
+            "azizah": "Farikhatul Azizah", "hanan": "Hanan Tsuroya Akyasi", "hanni": "Hanni Hasanati", "juli": "Jembar Juli Yuasti",
+            "lusi": "Lusi Rahmah Oktavia", "pniel": "Pniel Munandar", "putri": "Putri Dwi Astuti", "ayu": "Riska Ayu Kesuma",
+            "ulfa": "Siti Ulfatur Rohmah", "tsabita": "Tsabita Hasna Hanifah", "ubaidillah": "Ubaidillah Musthofa",
+            "yoana": "Yoana Dian Riski Astuti", "youvischa": "Youvischa Aulia Arsinta", "yuyun": "Yuyun Lutfiyatul Khoiriyah",
+            "fadil": "Zain Nur Fadilah", "fakhry": "Muhammad Hanif Fakhry"
+        };
+
         const semesterList = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
         let currentSemesterIndex = 0;
         let currentEditTarget = null;
@@ -245,8 +234,10 @@
         let semesterData = {}; 
         let studentDatabase = {}; 
         let tempImageBase64 = null;
+        
+        // Cropper Variables
+        let cropperInstance = null;
 
-        // --- BACK BUTTON LOGIC ---
         function openModalWithHistory(modalId) {
             history.pushState({modal: modalId}, null, "");
             if (modalId === 'team-executor-modal') {
@@ -260,11 +251,8 @@
         }
 
         function closeModalWithHistory(modalId) {
-            if (history.state && history.state.modal === modalId) {
-                history.back();
-            } else {
-                closeModalUI(modalId);
-            }
+            if (history.state && history.state.modal === modalId) history.back();
+            else closeModalUI(modalId);
         }
 
         function closeModalUI(modalId) {
@@ -278,11 +266,9 @@
         }
 
         window.onpopstate = function(event) {
-            ['team-executor-modal', 'edit-modal', 'password-modal'].forEach(id => {
+            ['team-executor-modal', 'edit-modal', 'password-modal', 'crop-modal'].forEach(id => {
                 const modal = document.getElementById(id);
-                if (modal.classList.contains('active') || modal.classList.contains('open')) {
-                    closeModalUI(id);
-                }
+                if (modal.classList.contains('active') || modal.classList.contains('open')) closeModalUI(id);
             });
         };
 
@@ -300,9 +286,7 @@
             }
         }
 
-        // SWIPE LOGIC
-        let touchStartX = 0;
-        let touchEndX = 0;
+        let touchStartX = 0; let touchEndX = 0;
         document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
         document.addEventListener('touchend', e => { 
             touchEndX = e.changedTouches[0].screenX;
@@ -319,18 +303,14 @@
         function refreshData() {
             const btn = document.getElementById('btn-refresh');
             const icon = btn.querySelector('i');
-            icon.classList.add('fa-spin');
-            btn.classList.add('opacity-50');
-            loadDataFromServer().then(() => {
-                setTimeout(() => { icon.classList.remove('fa-spin'); btn.classList.remove('opacity-50'); }, 500);
-            });
+            icon.classList.add('fa-spin'); btn.classList.add('opacity-50');
+            loadDataFromServer().then(() => { setTimeout(() => { icon.classList.remove('fa-spin'); btn.classList.remove('opacity-50'); }, 500); });
         }
 
         async function loadDataFromServer() {
             const indicator = document.getElementById('loading-indicator');
             indicator.classList.remove('hidden');
             try {
-                // Request ke GAS
                 const response = await fetch(STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime());
                 const result = await response.json();
                 if (result.status === "success") {
@@ -339,25 +319,13 @@
                     if (Object.keys(semesterData).length === 0) semesterList.forEach(sem => semesterData[sem] = getEmptySemesterData());
                     updateSemesterDisplay(false);
                 }
-            } catch (error) { 
-                console.error("Gagal memuat data:", error);
-                // Retry
-                setTimeout(loadDataFromServer, 3000);
-            } 
+            } catch (error) { console.error("Gagal memuat data:", error); setTimeout(loadDataFromServer, 3000); } 
             finally { indicator.classList.add('hidden'); }
         }
 
         function getEmptySemesterData() {
             return { 
-                main: { 
-                    ketua: { name: "", img: "", nim: "" }, 
-                    wakil: { name: "", img: "", nim: "" }, 
-                    sek1: { name: "", img: "", nim: "" }, 
-                    sek2: { name: "", img: "", nim: "" }, 
-                    ben: { name: "", img: "", nim: "" },   
-                    ben1: { name: "", img: "", nim: "" },  
-                    ben2: { name: "", img: "", nim: "" }   
-                },
+                main: { ketua: { name: "", img: "", nim: "" }, wakil: { name: "", img: "", nim: "" }, sek1: { name: "", img: "", nim: "" }, sek2: { name: "", img: "", nim: "" }, ben: { name: "", img: "", nim: "" }, ben1: { name: "", img: "", nim: "" }, ben2: { name: "", img: "", nim: "" } },
                 executor: { koor: { name: "", img: "", nim: "" }, div_kreatif: Array(6).fill({name: "", img: "", nim: ""}), div_kebersihan: Array(5).fill({name: "", img: "", nim: ""}), div_sosial: Array(6).fill({name: "", img: "", nim: ""}) }
             };
         }
@@ -366,33 +334,72 @@
             return semesterData[sem];
         }
 
+        // --- NEW IMAGE HANDLING WITH CROPPER ---
         function handleFileSelect(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = function() {
-                        const canvas = document.getElementById('compress-canvas');
-                        const ctx = canvas.getContext('2d');
-                        // Kompresi agar bisa masuk ke Google Sheet (Max 50k karakter/sel)
-                        const MAX = 300; 
-                        let w = img.width, h = img.height;
-                        if (w > h) { if (w > MAX) { h *= MAX/w; w = MAX; } } 
-                        else { if (h > MAX) { w *= MAX/h; h = MAX; } }
-                        canvas.width = w; canvas.height = h;
-                        ctx.drawImage(img, 0, 0, w, h);
-                        // Quality rendah agar string base64 pendek
-                        tempImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                        
-                        document.getElementById('img-preview-edit').src = tempImageBase64;
-                        document.getElementById('img-preview-edit').classList.remove('hidden');
-                        document.getElementById('upload-placeholder').classList.add('opacity-0');
-                    }
+                    // Buka Modal Crop
+                    const cropModal = document.getElementById('crop-modal');
+                    const imageElement = document.getElementById('image-to-crop');
+                    
+                    imageElement.src = e.target.result;
+                    cropModal.classList.add('active'); // Tampilkan modal
+                    
+                    // Inisialisasi Cropper
+                    if(cropperInstance) cropperInstance.destroy();
+                    
+                    cropperInstance = new Cropper(imageElement, {
+                        aspectRatio: 1, // Kunci rasio 1:1
+                        viewMode: 1,
+                        dragMode: 'move',
+                        autoCropArea: 1,
+                        responsive: true,
+                        restore: false,
+                        guides: true,
+                        center: true,
+                        highlight: false,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true,
+                        toggleDragModeOnDblclick: false,
+                    });
                 }
                 reader.readAsDataURL(file);
             }
+            // Reset input file agar bisa pilih file yang sama lagi
+            input.value = '';
+        }
+
+        function closeCropModal() {
+            document.getElementById('crop-modal').classList.remove('active');
+            if(cropperInstance) {
+                cropperInstance.destroy();
+                cropperInstance = null;
+            }
+        }
+
+        function cropAndSave() {
+            if(!cropperInstance) return;
+            
+            // Ambil hasil crop dengan resolusi tinggi (800x800) untuk mengatasi buram
+            const canvas = cropperInstance.getCroppedCanvas({
+                width: 800,  // Resolusi ditingkatkan agar jernih
+                height: 800,
+                fillColor: '#fff',
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+
+            // Konversi ke base64 dengan kualitas 90%
+            tempImageBase64 = canvas.toDataURL('image/jpeg', 0.9);
+            
+            // Update Preview di Edit Modal
+            document.getElementById('img-preview-edit').src = tempImageBase64;
+            document.getElementById('img-preview-edit').classList.remove('hidden');
+            document.getElementById('upload-placeholder').classList.add('opacity-0');
+            
+            closeCropModal();
         }
 
         function initiateAction(action) {
@@ -402,10 +409,7 @@
             
             if (history.state && history.state.modal === 'edit-modal') {
                 history.back(); 
-                setTimeout(() => {
-                    openModalWithHistory('password-modal');
-                    document.getElementById('admin-password').focus();
-                }, 100);
+                setTimeout(() => { openModalWithHistory('password-modal'); document.getElementById('admin-password').focus(); }, 100);
             } else {
                  openModalWithHistory('password-modal');
                  document.getElementById('admin-password').focus();
@@ -422,10 +426,16 @@
             if (!currentEditTarget) return;
             const btn = document.getElementById('btn-confirm-save');
             const originalText = btn.innerText;
-            btn.innerText = "MENYIMPAN..."; btn.disabled = true;
+            btn.innerText = "Proses..."; btn.disabled = true;
 
             const input = document.getElementById('input-name');
-            const newName = isClear ? "" : input.value.trim();
+            let nameToSave = isClear ? "" : input.value.trim();
+            
+            if (!isClear && nameToSave) {
+                const lowerName = nameToSave.toLowerCase();
+                if (nicknameMap[lowerName]) nameToSave = nicknameMap[lowerName];
+            }
+
             const { type, key, index } = currentEditTarget;
             const sem = semesterList[currentSemesterIndex];
             const currentDataObj = getSemesterData(sem);
@@ -434,42 +444,23 @@
             let finalImg = "", finalNim = "-";
 
             if (!isClear) {
-                // Lookup NIM dari database yang sudah diload
-                finalNim = studentDatabase[newName.toLowerCase()] || "-";
-                // Gunakan gambar baru jika ada, atau gambar lama, atau avatar default
-                finalImg = tempImageBase64 ? tempImageBase64 : (oldData && oldData.img ? oldData.img : `https://ui-avatars.com/api/?name=${encodeURIComponent(newName)}&background=300505&color=ffffff&bold=true`);
+                finalNim = studentDatabase[nameToSave.toLowerCase()] || "-";
+                finalImg = tempImageBase64 ? tempImageBase64 : (oldData && oldData.img ? oldData.img : `https://ui-avatars.com/api/?name=${encodeURIComponent(nameToSave)}&background=300505&color=ffffff&bold=true`);
             }
 
-            const newData = { name: newName, img: finalImg, nim: finalNim };
-            
-            // Update local state
+            const newData = { name: nameToSave, img: finalImg, nim: finalNim };
             if (type === 'main') currentDataObj.main[key] = newData;
             else { if (index !== null) currentDataObj.executor[key][index] = newData; else currentDataObj.executor[key] = newData; }
             
-            // Update UI langsung
             updateStructureUI(sem); 
             
             try {
-                // Kirim seluruh struktur data ke server untuk disimpan
-                const res = await fetch(STRUCTURE_SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ 
-                        password: password, 
-                        structure: semesterData 
-                    }) 
-                });
+                const res = await fetch(STRUCTURE_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ password: password, structure: semesterData }) });
                 const result = await res.json();
-                
                 if (result.status === "success") {
                     btn.innerText = "BERHASIL";
-                    setTimeout(() => { 
-                        closeModalWithHistory('password-modal'); 
-                        btn.innerText = originalText; 
-                        btn.disabled = false; 
-                    }, 800);
-                } else {
-                    throw new Error(result.message);
-                }
+                    setTimeout(() => { closeModalWithHistory('password-modal'); btn.innerText = originalText; btn.disabled = false; }, 800);
+                } else throw new Error(result.message);
             } catch (e) {
                 document.getElementById('password-error').innerText = "GAGAL SIMPAN ONLINE";
                 document.getElementById('password-error').classList.remove('hidden');
@@ -487,13 +478,8 @@
             document.getElementById('btn-prev-sem').style.visibility = (currentSemesterIndex === 0) ? 'hidden' : 'visible';
             document.getElementById('btn-next-sem').style.visibility = (currentSemesterIndex === semesterList.length - 1) ? 'hidden' : 'visible';
             
-            if (currentSemesterIndex === 0) {
-                executorContainer.classList.remove('flex');
-                executorContainer.classList.add('hidden');
-            } else {
-                executorContainer.classList.remove('hidden');
-                executorContainer.classList.add('flex');
-            }
+            if (currentSemesterIndex === 0) { executorContainer.classList.remove('flex'); executorContainer.classList.add('hidden'); } 
+            else { executorContainer.classList.remove('hidden'); executorContainer.classList.add('flex'); }
 
             if (animate) {
                 contentWrapper.style.opacity = '0';
@@ -502,10 +488,7 @@
                     updateStructureUI(sem);
                     contentWrapper.style.opacity = '1';
                 }, 200);
-            } else {
-                displayEl.innerText = `SEMESTER ${sem}`;
-                updateStructureUI(sem);
-            }
+            } else { displayEl.innerText = `SEMESTER ${sem}`; updateStructureUI(sem); }
         }
 
         function nextSemester() { if (currentSemesterIndex < semesterList.length - 1) { currentSemesterIndex++; updateSemesterDisplay(); } }
@@ -536,20 +519,14 @@
                 container.innerHTML = `
                 <div class="flex flex-col items-center w-full gap-4 md:gap-10 mt-4 animate-fade-in pb-10">
                     <div class="flex justify-center w-full">
-                        <div class="w-[46vw] md:w-auto flex justify-center">
-                            ${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}
-                        </div>
+                        <div class="w-[46vw] md:w-auto flex justify-center">${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}</div>
                     </div>
-                    
                     <div class="grid grid-cols-2 gap-2 justify-center w-full px-2 md:flex md:gap-12 md:w-auto">
                         ${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}
                         ${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}
                     </div>
-
                     <div class="flex justify-center w-full">
-                        <div class="w-[46vw] md:w-auto flex justify-center">
-                            ${createDynamicCard('ben', "Bendahara", dataMain.ben)}
-                        </div>
+                        <div class="w-[46vw] md:w-auto flex justify-center">${createDynamicCard('ben', "Bendahara", dataMain.ben)}</div>
                     </div>
                 </div>`;
             }
@@ -560,21 +537,15 @@
             container.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mt-4 w-full max-w-7xl animate-fade-in">
                     <div class="flex flex-col items-center gap-4">
-                        <div class="w-full bg-orange-900/20 border border-orange-500/30 rounded-lg py-2 text-center mb-2">
-                            <div class="text-orange-400 text-lg font-bold font-tech uppercase tracking-widest">KREATIF</div>
-                        </div>
+                        <div class="w-full bg-orange-900/20 border border-orange-500/30 rounded-lg py-2 text-center mb-2"><div class="text-orange-400 text-lg font-bold font-tech uppercase tracking-widest">KREATIF</div></div>
                         <div class="grid grid-cols-2 gap-2 w-full place-items-center">${dataEx.div_kreatif.map((m, i) => createDynamicCard('div_kreatif', `Creative ${i+1}`, m, 'executor', i)).join('')}</div>
                     </div>
                     <div class="flex flex-col items-center gap-4">
-                         <div class="w-full bg-red-900/20 border border-red-500/30 rounded-lg py-2 text-center mb-2">
-                            <div class="text-red-400 text-lg font-bold font-tech uppercase tracking-widest">KEBERSIHAN</div>
-                        </div>
+                         <div class="w-full bg-red-900/20 border border-red-500/30 rounded-lg py-2 text-center mb-2"><div class="text-red-400 text-lg font-bold font-tech uppercase tracking-widest">KEBERSIHAN</div></div>
                         <div class="grid grid-cols-2 gap-2 w-full place-items-center">${dataEx.div_kebersihan.map((m, i) => createDynamicCard('div_kebersihan', `Cleaner ${i+1}`, m, 'executor', i)).join('')}</div>
                     </div>
                     <div class="flex flex-col items-center gap-4">
-                         <div class="w-full bg-yellow-900/20 border border-yellow-500/30 rounded-lg py-2 text-center mb-2">
-                            <div class="text-yellow-400 text-lg font-bold font-tech uppercase tracking-widest">SOSIAL</div>
-                        </div>
+                         <div class="w-full bg-yellow-900/20 border border-yellow-500/30 rounded-lg py-2 text-center mb-2"><div class="text-yellow-400 text-lg font-bold font-tech uppercase tracking-widest">SOSIAL</div></div>
                         <div class="grid grid-cols-2 gap-2 w-full place-items-center">${dataEx.div_sosial.map((m, i) => createDynamicCard('div_sosial', `Social ${i+1}`, m, 'executor', i)).join('')}</div>
                     </div>
                 </div>`;
@@ -589,9 +560,7 @@
             if (!name) return `
                 <div class="glass-panel empty-slot p-2 rounded-xl inline-flex flex-col card-container cursor-pointer group overflow-hidden transition-transform duration-200 active:scale-95" onclick="openModalWithHistory('edit-modal'); openEditModal(${params});">
                     <div class="flex-grow flex flex-col items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
-                        <div class="w-16 h-16 rounded-full mb-2 flex items-center justify-center border border-dashed border-gray-500 text-gray-500 group-hover:text-red-400 group-hover:border-red-400 transition-colors text-2xl">
-                            <i class="fas fa-plus"></i>
-                        </div>
+                        <div class="w-16 h-16 rounded-full mb-2 flex items-center justify-center border border-dashed border-gray-500 text-gray-500 group-hover:text-red-400 group-hover:border-red-400 transition-colors text-2xl"><i class="fas fa-plus"></i></div>
                         <span class="text-[10px] md:text-xs text-gray-500 group-hover:text-red-300 font-bold uppercase tracking-wider">Isi Data</span>
                     </div>
                     <p class="text-[10px] text-gray-600 uppercase mt-auto flex-shrink-0 pt-2 border-t border-white/5 tracking-wider w-full text-center">${label}</p>
