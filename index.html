@@ -125,7 +125,6 @@
             <input type="password" id="admin-password" class="w-full bg-black border-2 border-gray-800 rounded-xl py-3 px-4 text-white text-center focus:border-red-600 mb-2 tracking-[0.5em] text-lg transition-colors outline-none" placeholder="••••••••">
             <p id="password-error" class="text-red-500 text-[10px] mb-4 hidden font-bold tracking-wide bg-red-950/30 py-1 rounded">PASSWORD SALAH!</p>
             
-            <!-- BUTTONS WITH STATUS -->
             <div class="flex gap-3 mt-4">
                 <button onclick="closePasswordModal()" class="flex-1 py-3 rounded-xl border border-gray-700 text-gray-400 text-xs font-bold uppercase hover:bg-gray-900 transition-colors">Batal</button>
                 <button id="btn-confirm-save" onclick="confirmAction()" class="flex-1 py-3 rounded-xl bg-red-700 text-white font-bold hover:bg-red-600 text-xs uppercase tracking-wider shadow-lg hover:shadow-red-900/50 transition-all flex justify-center items-center gap-2">
@@ -166,9 +165,8 @@
     </div>
 
     <script>
-        // --- !!! WAJIB GANTI URL INI SETIAP KALI DEPLOY BARU !!! ---
-        // Cara: Klik Deploy > New Deployment > Web App > Copy URL > Paste disini
-        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnKRxUb3HMV_oO6d47MfJlP4RM9U4SfadIlEFr_8dK5Af36GtuqgDXb5n3ZB1mjSHH5Q/exec";
+        // --- !!! PASTE URL DEPLOYMENT BARU ANDA DI SINI !!! ---
+        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf2o81dhhd9wnWLsNjuj--gxcSzLkIyIWCFkmpdlH61XB3uQoRajlGCYCDWNLOxAbmbA/exec";
 
         const dbMahasiswa = {
             "Ady Surya": { img: "https://lh3.googleusercontent.com/d/1z5JRHNaprGcbhl1d5dxNKW1Y4CGVGa-A", nim: "2511038" },
@@ -217,14 +215,13 @@
         }
 
         window.onload = function() {
-            // 1. Load dari lokal agar instan
-            loadFromLocal();
-            
-            // 2. Load dari server (Anti-Cache)
-            // Menggunakan timestamp agar browser TIDAK mengambil data basi
-            const antiCacheUrl = STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime();
+            // Kita HAPUS pemuatan local storage awal untuk memaksa ambil data server dulu
+            // loadFromLocal(); 
             
             updateSemesterDisplay();
+            
+            // ANTI-CACHE: Tambahkan timestamp agar selalu dapat data baru
+            const antiCacheUrl = STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime();
             loadStructureData(antiCacheUrl); 
             
             document.getElementById('input-name').addEventListener('keypress', (e) => { if (e.key === 'Enter') initiateAction('save'); });
@@ -257,7 +254,7 @@
             try {
                 const fetchUrl = url || (STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime());
                 
-                // PENTING: redirect 'follow'
+                // Gunakan redirect follow untuk GAS Web App
                 const response = await fetch(fetchUrl, { redirect: 'follow' });
                 
                 if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
@@ -268,13 +265,14 @@
                 // Update data server
                 semesterData[semesterList[currentSemesterIndex]] = data;
                 
-                // Sync ke lokal
+                // Simpan ke lokal setelah berhasil fetch
                 saveToLocal();
                 
                 updateStructureUI(semesterList[currentSemesterIndex]);
                 
             } catch (error) { 
-                console.warn("Gagal Sync Server. Menggunakan data lokal.", error);
+                console.warn("Gagal Sync Server. Mencoba data lokal.", error);
+                loadFromLocal(); // Baru load lokal jika server gagal
                 if (!semesterData[semesterList[currentSemesterIndex]]) {
                     semesterData[semesterList[currentSemesterIndex]] = getSemesterData(semesterList[currentSemesterIndex]);
                 }
@@ -331,7 +329,6 @@
         async function saveMember(isClear = false, usedPassword = "") {
             if (!currentEditTarget) return;
             
-            // UI FEEDBACK: SEDANG MENYIMPAN
             const btn = document.getElementById('btn-confirm-save');
             btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> MENYIMPAN...`;
             btn.disabled = true;
@@ -360,22 +357,24 @@
 
             const newData = { name: newName, img: matchedImg, nim: matchedNim };
 
-            // Update Lokal & Render (Agar user merasa instan)
+            // Update Lokal
             if (type === 'main') currentDataObj.main[key] = newData;
             else {
                 if (index !== null) currentDataObj.executor[key][index] = newData;
                 else currentDataObj.executor[key] = newData;
             }
             saveToLocal();
+            
+            // Render UI
             if (type === 'main') renderMainStructure(currentDataObj.main);
             else if(document.getElementById('team-executor-modal').classList.contains('open')) renderTeamExecutorTree(currentDataObj.executor);
 
-            // KIRIM KE CLOUD (Tanpa NO-CORS agar tahu status)
+            // POST ke Server
             try {
                 const response = await fetch(STRUCTURE_SCRIPT_URL, {
                     method: 'POST',
-                    redirect: 'follow', // PENTING untuk GAS
-                    headers: { "Content-Type": "text/plain;charset=utf-8" }, // Workaround CORS GAS
+                    redirect: 'follow', 
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify({ 
                         password: usedPassword,
                         key, 
@@ -388,7 +387,7 @@
 
                 const result = await response.json();
                 
-                if (result.status === 'success') {
+                if (result.result === 'success') {
                     btn.innerHTML = `<i class="fas fa-check"></i> BERHASIL`;
                     btn.classList.replace('bg-gray-600', 'bg-green-600');
                     setTimeout(() => closePasswordModal(), 1000);
@@ -398,7 +397,7 @@
 
             } catch (e) { 
                 console.error("Gagal simpan ke Cloud:", e);
-                btn.innerHTML = `<i class="fas fa-exclamation-triangle"></i> GAGAL (OFFLINE)`;
+                btn.innerHTML = `<i class="fas fa-exclamation-triangle"></i> GAGAL KONEKSI`;
                 btn.classList.replace('bg-gray-600', 'bg-red-600');
                 setTimeout(() => closePasswordModal(), 2000);
             }
