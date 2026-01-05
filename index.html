@@ -124,9 +124,13 @@
             </div>
             <input type="password" id="admin-password" class="w-full bg-black border-2 border-gray-800 rounded-xl py-3 px-4 text-white text-center focus:border-red-600 mb-2 tracking-[0.5em] text-lg transition-colors outline-none" placeholder="••••••••">
             <p id="password-error" class="text-red-500 text-[10px] mb-4 hidden font-bold tracking-wide bg-red-950/30 py-1 rounded">PASSWORD SALAH!</p>
+            
+            <!-- BUTTONS WITH STATUS -->
             <div class="flex gap-3 mt-4">
                 <button onclick="closePasswordModal()" class="flex-1 py-3 rounded-xl border border-gray-700 text-gray-400 text-xs font-bold uppercase hover:bg-gray-900 transition-colors">Batal</button>
-                <button onclick="confirmAction()" class="flex-1 py-3 rounded-xl bg-red-700 text-white font-bold hover:bg-red-600 text-xs uppercase tracking-wider shadow-lg hover:shadow-red-900/50 transition-all">Konfirmasi</button>
+                <button id="btn-confirm-save" onclick="confirmAction()" class="flex-1 py-3 rounded-xl bg-red-700 text-white font-bold hover:bg-red-600 text-xs uppercase tracking-wider shadow-lg hover:shadow-red-900/50 transition-all flex justify-center items-center gap-2">
+                    <span>KONFIRMASI</span>
+                </button>
             </div>
         </div>
     </div>
@@ -162,8 +166,9 @@
     </div>
 
     <script>
-        // PASTIKAN MENGGANTI URL INI DENGAN URL DEPLOYMENT TERBARU ANDA
-        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjXB5BDbYIG3Rx5Ie3fFlATtVGk2MOU-AHT9RyTcNNyqBaQURJF2WtTplIEX9lV2mewg/exec";
+        // --- !!! WAJIB GANTI URL INI SETIAP KALI DEPLOY BARU !!! ---
+        // Cara: Klik Deploy > New Deployment > Web App > Copy URL > Paste disini
+        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnKRxUb3HMV_oO6d47MfJlP4RM9U4SfadIlEFr_8dK5Af36GtuqgDXb5n3ZB1mjSHH5Q/exec";
 
         const dbMahasiswa = {
             "Ady Surya": { img: "https://lh3.googleusercontent.com/d/1z5JRHNaprGcbhl1d5dxNKW1Y4CGVGa-A", nim: "2511038" },
@@ -212,13 +217,14 @@
         }
 
         window.onload = function() {
-            // LOAD DARI LOCAL STORAGE DULU
+            // 1. Load dari lokal agar instan
             loadFromLocal();
             
-            updateSemesterDisplay();
-            
-            // ANTI-CACHE: Tambahkan timestamp agar selalu dapat data baru
+            // 2. Load dari server (Anti-Cache)
+            // Menggunakan timestamp agar browser TIDAK mengambil data basi
             const antiCacheUrl = STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime();
+            
+            updateSemesterDisplay();
             loadStructureData(antiCacheUrl); 
             
             document.getElementById('input-name').addEventListener('keypress', (e) => { if (e.key === 'Enter') initiateAction('save'); });
@@ -232,7 +238,6 @@
             }, { once: true });
         };
 
-        // --- LOCAL STORAGE FUNCTIONS ---
         function saveToLocal() {
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(semesterData));
         }
@@ -247,23 +252,23 @@
                 }
             }
         }
-        // --------------------------------
 
         async function loadStructureData(url) {
             try {
-                // Gunakan URL yang sudah ada timestampnya jika tersedia
                 const fetchUrl = url || (STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime());
                 
+                // PENTING: redirect 'follow'
                 const response = await fetch(fetchUrl, { redirect: 'follow' });
+                
                 if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
                 
                 const data = await response.json();
                 if(data.meta && data.meta.password) SERVER_PASSWORD = data.meta.password;
                 
-                // Update data semester (kecuali 1 yang hardcoded)
+                // Update data server
                 semesterData[semesterList[currentSemesterIndex]] = data;
                 
-                // Simpan ke lokal agar refresh selanjutnya cepat
+                // Sync ke lokal
                 saveToLocal();
                 
                 updateStructureUI(semesterList[currentSemesterIndex]);
@@ -291,8 +296,12 @@
             pendingAction = action;
             document.getElementById('password-error').classList.add('hidden');
             document.getElementById('admin-password').value = '';
-            document.getElementById('edit-modal').classList.remove('active');
+            document.getElementById('btn-confirm-save').innerText = "KONFIRMASI";
+            document.getElementById('btn-confirm-save').classList.remove('bg-gray-600', 'bg-green-600', 'bg-red-600');
+            document.getElementById('btn-confirm-save').classList.add('bg-red-700');
+            document.getElementById('btn-confirm-save').disabled = false;
             
+            document.getElementById('edit-modal').classList.remove('active');
             setTimeout(() => {
                 document.getElementById('password-modal').classList.add('active');
                 document.getElementById('admin-password').focus();
@@ -314,7 +323,6 @@
             }
 
             errorLabel.classList.add('hidden');
-            document.getElementById('password-modal').classList.remove('active');
             
             if(pendingAction === 'save') saveMember(false, password);
             else if (pendingAction === 'delete') saveMember(true, password);
@@ -322,6 +330,13 @@
 
         async function saveMember(isClear = false, usedPassword = "") {
             if (!currentEditTarget) return;
+            
+            // UI FEEDBACK: SEDANG MENYIMPAN
+            const btn = document.getElementById('btn-confirm-save');
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> MENYIMPAN...`;
+            btn.disabled = true;
+            btn.classList.replace('bg-red-700', 'bg-gray-600');
+
             const input = document.getElementById('input-name');
             const newName = isClear ? "" : input.value.trim();
             const { type, key, index } = currentEditTarget;
@@ -345,25 +360,22 @@
 
             const newData = { name: newName, img: matchedImg, nim: matchedNim };
 
-            if (type === 'main') {
-                currentDataObj.main[key] = newData;
-            } else {
+            // Update Lokal & Render (Agar user merasa instan)
+            if (type === 'main') currentDataObj.main[key] = newData;
+            else {
                 if (index !== null) currentDataObj.executor[key][index] = newData;
                 else currentDataObj.executor[key] = newData;
             }
-
-            // 1. Simpan Lokal & Render (Agar user merasa instan)
             saveToLocal();
-            if (type === 'main') {
-                renderMainStructure(currentDataObj.main);
-            } else if(document.getElementById('team-executor-modal').classList.contains('open')) {
-                renderTeamExecutorTree(currentDataObj.executor);
-            }
+            if (type === 'main') renderMainStructure(currentDataObj.main);
+            else if(document.getElementById('team-executor-modal').classList.contains('open')) renderTeamExecutorTree(currentDataObj.executor);
 
-            // 2. Simpan ke Cloud (Google Sheet)
+            // KIRIM KE CLOUD (Tanpa NO-CORS agar tahu status)
             try {
-                await fetch(STRUCTURE_SCRIPT_URL, {
-                    method: 'POST', mode: 'no-cors', 
+                const response = await fetch(STRUCTURE_SCRIPT_URL, {
+                    method: 'POST',
+                    redirect: 'follow', // PENTING untuk GAS
+                    headers: { "Content-Type": "text/plain;charset=utf-8" }, // Workaround CORS GAS
                     body: JSON.stringify({ 
                         password: usedPassword,
                         key, 
@@ -373,7 +385,23 @@
                         nim: newData.nim
                     })
                 });
-            } catch (e) { console.error("Gagal simpan ke Cloud:", e); }
+
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    btn.innerHTML = `<i class="fas fa-check"></i> BERHASIL`;
+                    btn.classList.replace('bg-gray-600', 'bg-green-600');
+                    setTimeout(() => closePasswordModal(), 1000);
+                } else {
+                    throw new Error(result.message || "Gagal menyimpan");
+                }
+
+            } catch (e) { 
+                console.error("Gagal simpan ke Cloud:", e);
+                btn.innerHTML = `<i class="fas fa-exclamation-triangle"></i> GAGAL (OFFLINE)`;
+                btn.classList.replace('bg-gray-600', 'bg-red-600');
+                setTimeout(() => closePasswordModal(), 2000);
+            }
             
             input.value = "";
             currentEditTarget = null;
@@ -512,7 +540,7 @@
                     </div>
 
                     <div class="flex flex-col items-center w-full">
-                        <h3 class="font-bold text-white text-xs md:text-sm leading-tight line-clamp-2 text-center mb-1 px-1 group-hover:text-red-200 transition-colors">${name}</h3>
+                        <h3 class="font-bold text-white text-xs md:text-sm leading-tight text-center mb-1 px-1 group-hover:text-red-200 transition-colors">${name}</h3>
                         <p class="text-red-500 text-[10px] md:text-xs font-tech font-bold tracking-wider mb-2 group-hover:text-red-400 transition-colors">${nim || "-"}</p>
                         <p class="text-[10px] md:text-xs text-red-400 uppercase font-tech pt-3 border-t border-white/10 w-full tracking-wider group-hover:text-red-300 text-center">${label}</p>
                     </div>
