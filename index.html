@@ -80,6 +80,10 @@
         .card-container { width: 100%; height: auto; aspect-ratio: 9/15; margin: 0; }
         @media (min-width: 768px) { .card-container { width: 250px; height: 400px; margin: 0 auto; aspect-ratio: auto; } }
         
+        /* Overide for Executor Grid to prevent clashing */
+        .executor-card { width: 100% !important; max-width: 220px; }
+        @media (min-width: 768px) { .executor-card { width: 100% !important; height: auto !important; aspect-ratio: 9/14; } }
+
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f0505; }
@@ -109,7 +113,7 @@
                     <div class="text-center mb-6">
                         <h2 class="text-3xl md:text-6xl font-tech font-bold text-white mb-3 uppercase tracking-wider">STRUKTUR KELAS</h2>
                         <div class="h-1.5 w-24 md:w-32 bg-red-600 mx-auto rounded-full shadow-red-glow"></div>
-                        <div id="loading-indicator" class="mt-4 text-red-400 text-xs md:text-sm font-tech hidden"><i class="fas fa-circle-notch fa-spin mr-2"></i> MENGHUBUNGKAN DATABASE...</div>
+                        <div id="loading-indicator" class="mt-4 text-red-400 text-xs md:text-sm font-tech hidden"><i class="fas fa-circle-notch fa-spin mr-2"></i> SINKRONISASI...</div>
                     </div>
 
                     <div class="max-w-4xl mx-auto px-2 flex flex-col items-center justify-center">
@@ -121,9 +125,9 @@
                             <button onclick="nextSemester()" id="btn-next-sem" class="hidden md:block absolute right-0 h-full px-6 z-20 text-3xl text-red-600 hover:text-white hover:bg-red-900/30 transition-all"><i class="fas fa-chevron-right"></i></button>
                         </div>
                         <button onclick="refreshData()" id="btn-refresh" class="mt-3 group relative px-4 py-2 bg-black/60 rounded-full border border-red-800/60 hover:border-red-500 hover:bg-red-950/40 transition-all active:scale-95">
-                            <div class="flex items-center gap-2 text-xs text-red-200/70 group-hover:text-white font-tech tracking-wider"><i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> REFRESH DATA</div>
+                            <div class="flex items-center gap-2 text-xs text-red-200/70 group-hover:text-white font-tech tracking-wider"><i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> REFRESH</div>
                         </button>
-                        <div class="md:hidden mt-3 text-gray-600 text-[10px] flex items-center gap-2"><i class="fas fa-chevron-left"></i> <span>GESER UNTUK GANTI SEMESTER</span> <i class="fas fa-chevron-right"></i></div>
+                        <div class="md:hidden mt-3 text-gray-600 text-[10px] flex items-center gap-2"><i class="fas fa-chevron-left"></i> <span>Geser Untuk Mengganti Semester</span> <i class="fas fa-chevron-right"></i></div>
                     </div>
                 </div>
 
@@ -142,9 +146,11 @@
 
     <!-- MODAL TEAM EXECUTOR -->
     <div id="team-executor-modal" class="fullscreen-overlay">
-        <div class="w-full min-h-screen pt-4 pb-10 flex flex-col bg-[#050000]">
-             <button onclick="closeModalWithHistory('team-executor-modal')" class="fixed top-4 right-4 z-[200] bg-gray-800 text-white w-12 h-12 rounded-full border border-gray-600 flex items-center justify-center shadow-lg text-lg transition-transform active:scale-90"><i class="fas fa-times"></i></button>
-            <div class="text-center mb-8 px-4 mt-8 relative z-10"><h2 class="text-3xl md:text-5xl font-tech font-bold text-white uppercase tracking-widest">TEAM EXECUTOR</h2></div>
+        <div class="w-full min-h-screen pt-4 pb-10 flex flex-col bg-[#050000] relative">
+            <!-- UPDATED CLOSE BUTTON: Red, High Z-Index, More Visible -->
+             <button onclick="closeModalWithHistory('team-executor-modal')" class="fixed top-6 right-6 z-[9999] bg-red-900/90 text-white w-12 h-12 md:w-14 md:h-14 rounded-full border border-red-500 flex items-center justify-center shadow-[0_0_15px_rgba(255,0,0,0.5)] text-xl hover:bg-red-700 hover:scale-110 transition-all cursor-pointer"><i class="fas fa-times"></i></button>
+            
+            <div class="text-center mb-8 px-4 mt-12 relative z-10"><h2 class="text-3xl md:text-5xl font-tech font-bold text-white uppercase tracking-widest">TEAM EXECUTOR</h2></div>
             <div id="executor-tree-container" class="flex-grow flex items-start justify-center overflow-auto px-2 pb-20"></div>
         </div>
     </div>
@@ -154,14 +160,13 @@
         <div id="password-box" class="bg-[#0f0505] border-2 border-red-800 rounded-2xl w-full max-w-xs mx-4 shadow-2xl text-center p-6 relative transition-transform">
             <div class="mb-4">
                 <i class="fas fa-lock text-4xl text-red-600 mb-2"></i>
-                <h3 class="text-lg font-bold text-white font-tech uppercase tracking-widest">Keamanan Data</h3>
+                <h3 class="text-lg font-bold text-white font-tech uppercase tracking-widest">Autentikasi</h3>
             </div>
             
-            <p class="text-gray-400 text-xs mb-3">Masukkan PIN Admin (Database)</p>
+            <p class="text-gray-400 text-xs mb-3">Masukkan Sandi</p>
             
             <input type="password" id="admin-password" class="w-full bg-black border border-gray-700 rounded-lg py-3 px-4 text-white text-center focus:border-red-600 mb-4 tracking-[0.5em] text-lg outline-none transition-all" placeholder="••••">
             
-            <!-- ERROR MESSAGE (PERSISTENT UNTIL TYPING) -->
             <div id="password-error" class="bg-red-950/80 border border-red-500 rounded p-2 mb-4 hidden animate-fade-in">
                 <p class="text-red-400 text-[10px] font-bold uppercase flex items-center justify-center gap-2">
                     <i class="fas fa-exclamation-triangle"></i> <span id="error-text">PASSWORD SALAH!</span>
@@ -182,7 +187,7 @@
             <div id="edit-form-container">
                 <h3 class="text-xl font-bold text-white mb-4 font-tech uppercase flex items-center gap-2"><i class="fas fa-pen-to-square text-red-500"></i>LENGKAPI DATA</h3>
                 <div class="mb-6">
-                    <label class="block text-red-500 text-[10px] font-bold uppercase mb-2 tracking-wider">Profile Mahasiswa</label>
+                    <label class="block text-red-500 text-[10px] font-bold uppercase mb-2 tracking-wider">Profil Mahasiswa</label>
                     <label for="input-file" class="cursor-pointer group relative block w-full">
                         <div class="w-full aspect-square bg-black/40 border-2 border-dashed border-gray-700 rounded-xl flex items-center justify-center overflow-hidden relative" id="preview-upload-container">
                              <div id="upload-placeholder" class="flex flex-col items-center justify-center"><i class="fas fa-camera text-gray-600 text-4xl mb-2"></i><span class="text-[10px] text-gray-600 uppercase font-bold">Upload Foto</span></div>
@@ -192,9 +197,9 @@
                     </label>
                 </div>
                 <div class="mb-6">
-                    <label class="block text-red-500 text-[10px] font-bold uppercase mb-2 tracking-wider">Nama Lengkap / Panggilan</label>
-                    <input type="text" id="input-name" class="w-full bg-black/40 border border-gray-700 rounded-lg py-3 px-4 text-white focus:border-red-500 focus:outline-none placeholder-gray-700 text-sm" placeholder="Contoh: 'Fikri'..." autocomplete="off">
-                    <p class="text-[10px] text-gray-600 mt-1">NIM akan terisi otomatis berdasarkan database</p>
+                    <label class="block text-red-500 text-[10px] font-bold uppercase mb-2 tracking-wider">Nama Lengkap</label>
+                    <input type="text" id="input-name" class="w-full bg-black/40 border border-gray-700 rounded-lg py-3 px-4 text-white focus:border-red-500 focus:outline-none placeholder-gray-700 text-sm" placeholder="Contoh : 'Tukiyem'..." autocomplete="off">
+                    <p class="text-[10px] text-gray-600 mt-1">Pastikan Nama Sesuai Identitas</p>
                 </div>
                 <div class="flex gap-3">
                     <button onclick="closeModalWithHistory('edit-modal')" class="flex-1 py-3 rounded-lg border border-gray-700 text-gray-500 text-xs font-bold uppercase">Batal</button>
@@ -221,27 +226,23 @@
                 <button onclick="closeCropModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
             </div>
             <div class="flex-grow bg-black relative overflow-hidden flex items-center justify-center">
-                <!-- Container untuk Cropper.js -->
                 <div class="w-full h-full p-2">
                     <img id="image-to-crop" class="max-w-full max-h-full block">
                 </div>
             </div>
             <div class="p-4 border-t border-red-900/30 bg-black/50 rounded-b-2xl flex gap-3">
                 <button onclick="closeCropModal()" class="flex-1 py-3 rounded-lg border border-gray-700 text-gray-400 font-bold uppercase text-xs">Batal</button>
-                <button onclick="cropAndSave()" class="flex-1 py-3 rounded-lg bg-red-700 text-white font-bold uppercase text-xs shadow-lg hover:bg-red-600">Potong & Pakai</button>
+                <button onclick="cropAndSave()" class="flex-1 py-3 rounded-lg bg-red-700 text-white font-bold uppercase text-xs shadow-lg hover:bg-red-600">Potong</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- SETTING PENTING: GANTI URL INI SETELAH DEPLOY GOOGLE APPS SCRIPT ---
-        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-oBS-BQMVZ0r0TwrQgxivcfWQlHjCoZ8gRHEJuZMKyVX5RKveKX6X4atSQ1LOadhWbg/exec"; 
+        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxe9UMA93eJE0OrE0ne3LSVJNzP7yqDt8P0oek1iYmxsX14Sxu-Ee8w3wOHFcOntNDvBQ/exec"; 
         
-        // PENTING: PENGATURAN NAMA PANGGILAN (Jika di Database menggunakan nama lengkap)
         const nicknameMap = {
             "ady": "Ady Surya", 
             "fikri": "Ahmad Lubadul Fikri", 
-            // ... tambahkan mapping lainnya jika perlu ...
         };
 
         const semesterList = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
@@ -250,10 +251,8 @@
         let pendingAction = null; 
         
         let semesterData = {}; 
-        let studentDatabase = {}; // Akan diisi otomatis dari Google Sheet
+        let studentDatabase = {}; 
         let tempImageBase64 = null;
-        
-        // Cropper Variables
         let cropperInstance = null;
 
         function openModalWithHistory(modalId) {
@@ -284,9 +283,32 @@
         }
 
         window.onpopstate = function(event) {
+            // FIX: Cek modal mana yang harus aktif berdasarkan history state
+            const targetModalId = event.state ? event.state.modal : null;
+            
             ['team-executor-modal', 'edit-modal', 'password-modal', 'crop-modal'].forEach(id => {
+                // Jika modal ini adalah target, biarkan terbuka (atau buka jika perlu)
+                if (id === targetModalId) {
+                    const modal = document.getElementById(id);
+                    if (id === 'team-executor-modal') {
+                         if (!modal.classList.contains('open')) {
+                            // Restore state jika navigasi dari history
+                            renderTeamExecutorTree(getSemesterData(semesterList[currentSemesterIndex]).executor);
+                            modal.classList.add('open');
+                            document.getElementById('main-content-wrapper').classList.add('blur-content');
+                            document.body.style.overflow = 'hidden';
+                         }
+                    } else {
+                        if (!modal.classList.contains('active')) modal.classList.add('active');
+                    }
+                    return; // Jangan tutup modal ini
+                }
+
+                // Tutup modal lain yang tidak sesuai dengan state saat ini
                 const modal = document.getElementById(id);
-                if (modal.classList.contains('active') || modal.classList.contains('open')) closeModalUI(id);
+                if (modal.classList.contains('active') || modal.classList.contains('open')) {
+                    closeModalUI(id);
+                }
             });
         };
 
@@ -317,7 +339,6 @@
             document.getElementById('input-name').addEventListener('keypress', (e) => { if (e.key === 'Enter') initiateAction('save'); });
             document.getElementById('admin-password').addEventListener('keypress', (e) => { if (e.key === 'Enter') confirmAction(); });
             
-            // REMOVE ERROR ON TYPING
             document.getElementById('admin-password').addEventListener('input', function() {
                 const errBox = document.getElementById('password-error');
                 if(!errBox.classList.contains('hidden')) {
@@ -336,10 +357,6 @@
         }
 
         async function loadDataFromServer() {
-            if (STRUCTURE_SCRIPT_URL === "GANTI_DENGAN_URL_DEPLOYMENT_ANDA_DISINI") {
-                alert("Harap ganti STRUCTURE_SCRIPT_URL di dalam kode HTML dengan URL Deployment Anda!");
-                return;
-            }
             const indicator = document.getElementById('loading-indicator');
             indicator.classList.remove('hidden');
             try {
@@ -347,8 +364,8 @@
                 const result = await response.json();
                 
                 if (result.status === "success") {
-                    studentDatabase = result.studentDb || {}; // Ambil Database Mahasiswa
-                    semesterData = result.structure || {};    // Ambil Data Struktur
+                    studentDatabase = result.studentDb || {}; 
+                    semesterData = result.structure || {};    
                     
                     if (Object.keys(semesterData).length === 0) semesterList.forEach(sem => semesterData[sem] = getEmptySemesterData());
                     updateSemesterDisplay(false);
@@ -375,11 +392,19 @@
                 const file = input.files[0];
                 const reader = new FileReader();
                 reader.onload = function(e) {
+                    if(cropperInstance) {
+                        cropperInstance.destroy();
+                        cropperInstance = null;
+                    }
+
                     const cropModal = document.getElementById('crop-modal');
                     const imageElement = document.getElementById('image-to-crop');
+
+                    if (!imageElement || !cropModal) return;
+
                     imageElement.src = e.target.result;
                     cropModal.classList.add('active');
-                    if(cropperInstance) cropperInstance.destroy();
+                    
                     cropperInstance = new Cropper(imageElement, {
                         aspectRatio: 1, viewMode: 1, dragMode: 'move', autoCropArea: 1, responsive: true,
                         restore: false, guides: true, center: true, highlight: false, cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
@@ -397,12 +422,10 @@
 
         function cropAndSave() {
             if(!cropperInstance) return;
-            // PENTING: Ukuran diperkecil ke 300px agar muat di Google Sheet Storage
             const canvas = cropperInstance.getCroppedCanvas({
-                width: 300, height: 300, fillColor: '#000', imageSmoothingEnabled: true, imageSmoothingQuality: 'high',
+                width: 600, height: 600, fillColor: '#000', imageSmoothingEnabled: true, imageSmoothingQuality: 'high',
             });
-            // Kompresi kualitas 0.7
-            tempImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+            tempImageBase64 = canvas.toDataURL('image/jpeg', 0.9);
             document.getElementById('img-preview-edit').src = tempImageBase64;
             document.getElementById('img-preview-edit').classList.remove('hidden');
             document.getElementById('upload-placeholder').classList.add('opacity-0');
@@ -432,6 +455,12 @@
             else if (pendingAction === 'delete') saveMember(true, password);
         }
 
+        function toTitleCase(str) {
+            return str.toLowerCase().split(' ').map(function(word) {
+                return (word.charAt(0).toUpperCase() + word.slice(1));
+            }).join(' ');
+        }
+
         async function saveMember(isClear = false, password = "") {
             if (!currentEditTarget) return;
             const btn = document.getElementById('btn-confirm-save');
@@ -441,20 +470,15 @@
             const input = document.getElementById('input-name');
             let nameToSave = isClear ? "" : input.value.trim();
             
-            // Cek Mapping Nama Panggilan
             if (!isClear && nameToSave) {
                 const lowerName = nameToSave.toLowerCase();
-                // Jika ada di mapping manual, pakai mapping manual
                 if (nicknameMap[lowerName]) {
                     nameToSave = nicknameMap[lowerName];
                 } 
-                // Jika tidak ada di mapping, cek apakah ada di database yang mirip
-                // (Logic sederhana: jika input user ada di dalam kunci database)
                 else {
                     for (let dbName in studentDatabase) {
                         if (dbName.includes(lowerName)) {
-                            // Opsional: Bisa diaktifkan jika ingin auto-correct nama
-                            // nameToSave = toTitleCase(dbName);
+                            nameToSave = toTitleCase(dbName);
                             break;
                         }
                     }
@@ -469,28 +493,35 @@
             let finalImg = "", finalNim = "-";
 
             if (!isClear) {
-                // CARI NIM DARI DATABASE YANG SUDAH DILOAD
                 const lowerName = nameToSave.toLowerCase();
                 if (studentDatabase[lowerName]) {
                     finalNim = studentDatabase[lowerName];
                 } else {
-                    // Coba cari partial match jika exact match gagal
                     const foundKey = Object.keys(studentDatabase).find(k => k.includes(lowerName));
                     if (foundKey) finalNim = studentDatabase[foundKey];
                 }
-
                 finalImg = tempImageBase64 ? tempImageBase64 : (oldData && oldData.img ? oldData.img : `https://ui-avatars.com/api/?name=${encodeURIComponent(nameToSave)}&background=300505&color=ffffff&bold=true`);
             }
 
             const newData = { name: nameToSave, img: finalImg, nim: finalNim };
-            const previousData = JSON.parse(JSON.stringify(currentDataObj)); // Backup
+            const previousData = JSON.parse(JSON.stringify(currentDataObj));
 
-            if (type === 'main') currentDataObj.main[key] = newData;
-            else { if (index !== null) currentDataObj.executor[key][index] = newData; else currentDataObj.executor[key] = newData; }
-            updateStructureUI(sem); 
+            // LOGIC DATA UPDATE
+            if (type === 'main') {
+                currentDataObj.main[key] = newData;
+                updateStructureUI(sem); 
+            } else { 
+                if (index !== null) currentDataObj.executor[key][index] = newData; 
+                else currentDataObj.executor[key] = newData; 
+
+                // UPDATE TAMPILAN TEAM EXECUTOR JIKA SEDANG DIBUKA
+                const executorModal = document.getElementById('team-executor-modal');
+                if (executorModal.classList.contains('open')) {
+                    renderTeamExecutorTree(currentDataObj.executor);
+                }
+            }
             
             try {
-                // KIRIM SELURUH DATA STRUKTUR KE GOOGLE SHEET
                 const res = await fetch(STRUCTURE_SCRIPT_URL, { 
                     method: 'POST', 
                     body: JSON.stringify({ password: password, structure: semesterData }) 
@@ -506,15 +537,18 @@
                         input.value = ""; 
                         currentEditTarget = null; 
                         tempImageBase64 = null; 
-                    }, 800);
+                    }, 400); 
                 } else {
                     throw new Error(result.message);
                 }
             } catch (e) {
-                // Rollback jika gagal
                 if (type === 'main') currentDataObj.main = previousData.main;
                 else currentDataObj.executor = previousData.executor;
+                
                 updateStructureUI(sem); 
+                if (type !== 'main' && document.getElementById('team-executor-modal').classList.contains('open')) {
+                    renderTeamExecutorTree(currentDataObj.executor);
+                }
 
                 const errorMsg = e.message || "PASSWORD SALAH!";
                 const errorEl = document.getElementById('password-error');
@@ -523,7 +557,7 @@
                 
                 const passBox = document.getElementById('password-box');
                 passBox.classList.remove('animate-shake');
-                void passBox.offsetWidth; // Force reflow
+                void passBox.offsetWidth; 
                 passBox.classList.add('animate-shake');
                 
                 btn.innerText = originalText; btn.disabled = false;
@@ -563,13 +597,13 @@
                 container.innerHTML = `
                 <div class="flex flex-col items-center w-full gap-6 md:gap-10 mt-2 animate-fade-in pb-10">
                     <div class="flex flex-col md:flex-row justify-center gap-6 md:gap-12 w-full px-2">
-                        <div class="grid grid-cols-2 gap-2 w-full md:w-auto place-items-center">
+                        <div class="grid grid-cols-2 gap-4 md:gap-16 w-full md:w-auto place-items-center">
                              ${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}
                              ${createDynamicCard('wakil', "Wakil Ketua", dataMain.wakil)}
                         </div>
                     </div>
                     <div class="w-full max-w-5xl border-t border-red-900/30 my-2"></div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-8 w-full max-w-6xl px-2 place-items-center">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 w-full max-w-6xl px-2 place-items-center">
                         ${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}
                         ${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}
                         ${createDynamicCard('ben1', "Bendahara 1", dataMain.ben1)}
@@ -579,64 +613,97 @@
             } else {
                 container.innerHTML = `
                 <div class="flex flex-col items-center w-full gap-4 md:gap-10 mt-4 animate-fade-in pb-10">
-                    <div class="flex justify-center w-full">
-                        <div class="w-[46vw] md:w-auto flex justify-center">${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}</div>
+                    <div class="flex justify-center w-full px-2">
+                        <div class="w-[calc(50%-0.5rem)] md:w-auto flex justify-center">${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}</div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 justify-center w-full px-2 md:flex md:gap-12 md:w-auto">
+                    <div class="grid grid-cols-2 gap-4 md:gap-16 w-full md:w-auto px-2 place-items-center">
                         ${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}
                         ${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}
                     </div>
-                    <div class="flex justify-center w-full">
-                        <div class="w-[46vw] md:w-auto flex justify-center">${createDynamicCard('ben', "Bendahara", dataMain.ben)}</div>
+                    <div class="flex justify-center w-full px-2">
+                        <div class="w-[calc(50%-0.5rem)] md:w-auto flex justify-center">${createDynamicCard('ben', "Bendahara", dataMain.ben)}</div>
                     </div>
                 </div>`;
             }
         }
 
         function renderTeamExecutorTree(dataEx) {
+            const generateGrid = (list, key, labelPrefix) => {
+                return list.map((m, i) => {
+                    const card = createDynamicCard(key, `${labelPrefix} ${i+1}`, m, 'executor', i, true);
+                    if (list.length % 2 !== 0 && i === list.length - 1) {
+                        // WRAPPER FIX: Calculate exact single column width to prevent resizing
+                        return `<div class="col-span-2 w-full flex justify-center">
+                                    <div style="width: calc(50% - 0.375rem);" class="md:w-[calc(50%-0.5rem)]">
+                                        ${card}
+                                    </div>
+                                </div>`;
+                    }
+                    return card;
+                }).join('');
+            };
+
             const container = document.getElementById('executor-tree-container');
             container.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mt-4 w-full max-w-7xl animate-fade-in">
-                    <div class="flex flex-col items-center gap-4">
-                        <div class="w-full bg-orange-900/20 border border-orange-500/30 rounded-lg py-2 text-center mb-2"><div class="text-orange-400 text-lg font-bold font-tech uppercase tracking-widest">KREATIF</div></div>
-                        <div class="grid grid-cols-2 gap-2 w-full place-items-center">${dataEx.div_kreatif.map((m, i) => createDynamicCard('div_kreatif', `Creative ${i+1}`, m, 'executor', i)).join('')}</div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 mt-4 w-full max-w-7xl animate-fade-in px-4">
+                    <!-- DIVISI KREATIF -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-full max-w-[450px] bg-orange-950/40 border border-orange-500/30 rounded-xl py-3 text-center mb-6 shadow-lg shadow-orange-900/10">
+                            <div class="text-orange-400 text-lg md:text-xl font-bold font-tech uppercase tracking-widest">KREATIF</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 md:gap-4 w-full max-w-[450px] place-items-center">
+                            ${generateGrid(dataEx.div_kreatif, 'div_kreatif', 'Creative')}
+                        </div>
                     </div>
-                    <div class="flex flex-col items-center gap-4">
-                         <div class="w-full bg-red-900/20 border border-red-500/30 rounded-lg py-2 text-center mb-2"><div class="text-red-400 text-lg font-bold font-tech uppercase tracking-widest">KEBERSIHAN</div></div>
-                        <div class="grid grid-cols-2 gap-2 w-full place-items-center">${dataEx.div_kebersihan.map((m, i) => createDynamicCard('div_kebersihan', `Cleaner ${i+1}`, m, 'executor', i)).join('')}</div>
+
+                    <!-- DIVISI KEBERSIHAN -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-full max-w-[450px] bg-red-950/40 border border-red-500/30 rounded-xl py-3 text-center mb-6 shadow-lg shadow-red-900/10">
+                            <div class="text-red-400 text-lg md:text-xl font-bold font-tech uppercase tracking-widest">KEBERSIHAN</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 md:gap-4 w-full max-w-[450px] place-items-center">
+                            ${generateGrid(dataEx.div_kebersihan, 'div_kebersihan', 'Cleaner')}
+                        </div>
                     </div>
-                    <div class="flex flex-col items-center gap-4">
-                         <div class="w-full bg-yellow-900/20 border border-yellow-500/30 rounded-lg py-2 text-center mb-2"><div class="text-yellow-400 text-lg font-bold font-tech uppercase tracking-widest">SOSIAL</div></div>
-                        <div class="grid grid-cols-2 gap-2 w-full place-items-center">${dataEx.div_sosial.map((m, i) => createDynamicCard('div_sosial', `Social ${i+1}`, m, 'executor', i)).join('')}</div>
+
+                    <!-- DIVISI SOSIAL -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-full max-w-[450px] bg-yellow-950/40 border border-yellow-500/30 rounded-xl py-3 text-center mb-6 shadow-lg shadow-yellow-900/10">
+                            <div class="text-yellow-400 text-lg md:text-xl font-bold font-tech uppercase tracking-widest">SOSIAL</div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 md:gap-4 w-full max-w-[450px] place-items-center">
+                            ${generateGrid(dataEx.div_sosial, 'div_sosial', 'Social')}
+                        </div>
                     </div>
                 </div>`;
         }
 
-        function createDynamicCard(key, label, data, type = 'main', index = null) {
+        function createDynamicCard(key, label, data, type = 'main', index = null, isExecutor = false) {
             const name = data?.name || "";
             const nim = data?.nim || "";
             const img = name ? (data.img || "https://ui-avatars.com/api/?name=User&background=300505&color=ffffff") : "";
             const params = `'${type}', '${key}', ${index}, '${label}'`;
+            const cardClass = isExecutor ? 'executor-card' : '';
 
             if (!name) return `
-                <div class="glass-panel empty-slot p-2 rounded-xl inline-flex flex-col card-container cursor-pointer group overflow-hidden transition-transform duration-200 active:scale-95" onclick="openModalWithHistory('edit-modal'); openEditModal(${params});">
+                <div class="glass-panel empty-slot p-2 rounded-xl inline-flex flex-col card-container ${cardClass} cursor-pointer group overflow-hidden transition-transform duration-200 active:scale-95" onclick="openModalWithHistory('edit-modal'); openEditModal(${params});">
                     <div class="flex-grow flex flex-col items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
-                        <div class="w-16 h-16 rounded-full mb-2 flex items-center justify-center border border-dashed border-gray-500 text-gray-500 group-hover:text-red-400 group-hover:border-red-400 transition-colors text-2xl"><i class="fas fa-plus"></i></div>
-                        <span class="text-[10px] md:text-xs text-gray-500 group-hover:text-red-300 font-bold uppercase tracking-wider">Isi Data</span>
+                        <div class="w-12 h-12 md:w-16 md:h-16 rounded-full mb-2 flex items-center justify-center border border-dashed border-gray-500 text-gray-500 group-hover:text-red-400 group-hover:border-red-400 transition-colors text-xl md:text-2xl"><i class="fas fa-plus"></i></div>
+                        <span class="text-[9px] md:text-xs text-gray-500 group-hover:text-red-300 font-bold uppercase tracking-wider">Isi Data</span>
                     </div>
-                    <p class="text-[10px] text-gray-600 uppercase mt-auto flex-shrink-0 pt-2 border-t border-white/5 tracking-wider w-full text-center">${label}</p>
+                    <p class="text-[9px] md:text-[10px] text-gray-600 uppercase mt-auto flex-shrink-0 pt-2 border-t border-white/5 tracking-wider w-full text-center">${label}</p>
                 </div>`;
 
             return `
-                <div class="glass-panel p-1.5 rounded-xl inline-flex flex-col card-container cursor-pointer group transition-transform duration-200 active:scale-95" onclick="openModalWithHistory('edit-modal'); openEditModal(${params});">
+                <div class="glass-panel p-1.5 rounded-xl inline-flex flex-col card-container ${cardClass} cursor-pointer group transition-transform duration-200 active:scale-95" onclick="openModalWithHistory('edit-modal'); openEditModal(${params});">
                     <div class="flex-grow w-full overflow-hidden relative rounded-lg">
                         <img src="${img}" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
                     </div>
                     <div class="flex flex-col items-center w-full pt-2 pb-1 px-1">
-                        <h3 class="font-bold text-white text-xs md:text-sm leading-tight text-center mb-0.5 line-clamp-2">${name}</h3>
-                        <p class="text-red-500 text-[10px] font-tech font-bold tracking-wider mb-1">${nim || "-"}</p>
-                        <p class="text-[9px] text-red-400/80 uppercase font-tech pt-1 border-t border-red-900/30 w-full tracking-wider text-center truncate">${label}</p>
+                        <h3 class="font-bold text-white text-[10px] md:text-sm leading-tight text-center mb-0.5 line-clamp-2">${name}</h3>
+                        <p class="text-red-500 text-[9px] md:text-[10px] font-tech font-bold tracking-wider mb-1">${nim || "-"}</p>
+                        <p class="text-[8px] md:text-[9px] text-red-400/80 uppercase font-tech pt-1 border-t border-red-900/30 w-full tracking-wider text-center truncate">${label}</p>
                     </div>
                 </div>`;
         }
