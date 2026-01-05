@@ -13,14 +13,8 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        'crimson-dark': '#1a0505',
-                        'crimson-main': '#8a0000',
-                    },
-                    fontFamily: {
-                        'tech': ['Orbitron', 'sans-serif'],
-                        'body': ['Poppins', 'sans-serif'],
-                    }
+                    colors: { 'crimson-dark': '#1a0505', 'crimson-main': '#8a0000', },
+                    fontFamily: { 'tech': ['Orbitron', 'sans-serif'], 'body': ['Poppins', 'sans-serif'], }
                 }
             }
         }
@@ -29,19 +23,6 @@
     <style>
         body { background-color: #0a0000; color: #e5e5e5; overflow-x: hidden; font-family: 'Poppins', sans-serif; }
         .glass-panel { background: rgba(40, 0, 0, 0.6); border: 1px solid rgba(255, 50, 50, 0.1); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .tree { display: flex; justify-content: center; margin: 0 auto; min-width: 100%; padding-bottom: 50px; }
-        .tree ul { padding-top: 40px; position: relative; transition: all 0.5s; display: flex; justify-content: center; }
-        .tree li { float: left; text-align: center; list-style-type: none; position: relative; padding: 40px 10px 0 10px; transition: all 0.5s; }
-        
-        .tree li::before, .tree li::after { content: ''; position: absolute; top: 0; right: 50%; border-top: 3px solid #8a0000; width: 50%; height: 40px; }
-        .tree li::after { right: auto; left: 50%; border-left: 3px solid #8a0000; }
-        .tree li:only-child::after, .tree li:only-child::before { display: none; }
-        .tree li:only-child { padding-top: 0; }
-        .tree li:first-child::before, .tree li:last-child::after { border: 0 none; }
-        .tree li:last-child::before{ border-right: 3px solid #8a0000; border-radius: 0 5px 0 0; }
-        .tree li:first-child::after{ border-radius: 5px 0 0 0; }
-        .tree ul ul::before{ content: ''; position: absolute; top: 0; left: 50%; border-left: 3px solid #8a0000; width: 0; height: 40px; }
-        
         .fullscreen-overlay, .edit-modal, .custom-modal { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 100; overflow: auto; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; display: flex; justify-content: center; align-items: center; }
         .fullscreen-overlay { background: rgba(10, 0, 0, 0.95); transform: scale(0.9); transition: transform 0.3s ease, opacity 0.3s ease; display: block; }
         .edit-modal { background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px); z-index: 200; }
@@ -49,20 +30,14 @@
         .open, .active { opacity: 1; pointer-events: auto; transform: scale(1); }
         .empty-slot { border: 1px dashed rgba(150, 150, 150, 0.3); background: rgba(20, 0, 0, 0.2); }
         .empty-slot:hover { border-color: #ef4444; border-style: solid; }
-        
-        /* Updated Card Size */
         .card-container { width: 150px; height: 240px; }
         @media (min-width: 768px) { .card-container { width: 240px; height: 360px; } }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-        /* CUSTOM SCROLLBAR MERAH */
         ::-webkit-scrollbar { width: 12px; }
         ::-webkit-scrollbar-track { background: #0f0505; }
         ::-webkit-scrollbar-thumb { background: #8a0000; border-radius: 6px; border: 2px solid #0f0505; }
         ::-webkit-scrollbar-thumb:hover { background: #ff0000; }
         * { scrollbar-width: thin; scrollbar-color: #8a0000 #0f0505; }
-        
-        /* Blur transition class */
         .blur-content { filter: blur(8px); pointer-events: none; user-select: none; transition: filter 0.3s ease; }
     </style>
 </head>
@@ -72,7 +47,7 @@
         <div class="absolute inset-0 bg-gradient-to-b from-black via-[#1a0000] to-black opacity-80"></div>
     </div>
 
-    <!-- WRAPPER UTAMA UNTUK EFEK BLUR -->
+    <!-- WRAPPER UTAMA -->
     <div id="main-content-wrapper" class="transition-all duration-300">
         <main class="min-h-screen pt-10 px-4 md:px-8 max-w-7xl mx-auto w-full">
             <section id="structure" class="py-10 relative min-h-[600px]">
@@ -92,7 +67,6 @@
 
                 <div id="structure-content-container" class="w-full overflow-x-auto padding-bottom-2rem flex justify-center min-h-[500px] py-8"></div>
 
-                <!-- BUTTON TEAM EXECUTOR -->
                 <div class="text-center pb-12 mt-8 flex flex-col gap-4 items-center">
                      <button id="btn-team-executor" onclick="toggleTeamExecutor()" class="px-10 py-4 bg-gradient-to-r from-orange-700 to-black rounded-xl border border-orange-500/50 shadow-lg hover:shadow-orange-600/40 transition-all hidden group hover:scale-105 cursor-pointer z-10">
                         <div class="flex items-center gap-3">
@@ -124,7 +98,6 @@
             </div>
             <input type="password" id="admin-password" class="w-full bg-black border-2 border-gray-800 rounded-xl py-3 px-4 text-white text-center focus:border-red-600 mb-2 tracking-[0.5em] text-lg transition-colors outline-none" placeholder="••••••••">
             <p id="password-error" class="text-red-500 text-[10px] mb-4 hidden font-bold tracking-wide bg-red-950/30 py-1 rounded">PASSWORD SALAH!</p>
-            
             <div class="flex gap-3 mt-4">
                 <button onclick="closePasswordModal()" class="flex-1 py-3 rounded-xl border border-gray-700 text-gray-400 text-xs font-bold uppercase hover:bg-gray-900 transition-colors">Batal</button>
                 <button id="btn-confirm-save" onclick="confirmAction()" class="flex-1 py-3 rounded-xl bg-red-700 text-white font-bold hover:bg-red-600 text-xs uppercase tracking-wider shadow-lg hover:shadow-red-900/50 transition-all flex justify-center items-center gap-2">
@@ -154,6 +127,7 @@
             <div id="preview-container" class="hidden flex-col items-center text-center">
                 <h3 class="text-2xl font-bold text-white mb-2 font-tech uppercase tracking-[0.2em] text-red-500">ANGGOTA</h3>
                 <div class="w-full aspect-square bg-gradient-to-b from-gray-800 to-black rounded-2xl overflow-hidden mb-6 mt-6 border-4 border-red-900/50 shadow-2xl relative group">
+                     <!-- DITAMBAHKAN REFERRERPOLICY: NO-REFERRER UNTUK MENGHINDARI BLOKIR -->
                      <img id="preview-img" src="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerpolicy="no-referrer">
                 </div>
                 <h4 id="preview-name" class="text-white font-bold text-2xl mb-8 font-body tracking-wide">Nama</h4>
@@ -165,34 +139,34 @@
     </div>
 
     <script>
-        // --- !!! PASTE URL DEPLOYMENT BARU ANDA DI SINI !!! ---
-        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf2o81dhhd9wnWLsNjuj--gxcSzLkIyIWCFkmpdlH61XB3uQoRajlGCYCDWNLOxAbmbA/exec";
+        // MASUKKAN URL DEPLOY WEB APP KAMU DISINI
+        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbznUQnAxofrgtV8ETzIggPlXBvmm7K91uZ1459-ooHx16B2Si8_fRiQP_XmfR4t_XuTSw/exec";
 
         const dbMahasiswa = {
-            "Ady Surya": { img: "https://lh3.googleusercontent.com/d/1z5JRHNaprGcbhl1d5dxNKW1Y4CGVGa-A", nim: "2511038" },
-            "Ahmad Lubadul Fikri": { img: "https://lh3.googleusercontent.com/d/1wivrdbIcim8CyUio4srAiZ4tPyXu6taH", nim: "2511046" },
-            "Alyvia Qurrotal Aini": { img: "https://lh3.googleusercontent.com/d/11EucklVY9pmkB6-IomvtRZAyFFzVTRoW", nim: "2511042" },
-            "Anggun Lolyka Hastuti": { img: "https://lh3.googleusercontent.com/d/1D2ATUmALVTpPS5CoyqlKWTsZJh8LNF2d", nim: "2511043" },
-            "Aqillah Mazaya": { img: "https://lh3.googleusercontent.com/d/1Av6SMF4g5x4RVe9olnxoowj6ccqeSn50", nim: "2511043" },
-            "Arina Manasika": { img: "https://lh3.googleusercontent.com/d/1j-tiqZpNxPCvCK53YDL61fXgZbydjgd1", nim: "2511065" },
-            "Devi Kurniasari": { img: "https://lh3.googleusercontent.com/d/1a0bIQm8m9mIm5a3-zjQRyiW-hMF5_7D9", nim: "2511052" },
-            "Elok Iis Nurrohmah": { img: "https://lh3.googleusercontent.com/d/1KIdkI-mlAZxOz0zHh6gdT8jZx_4mJe4L", nim: "2511060" },
-            "Farihatul Azizah": { img: "https://lh3.googleusercontent.com/d/15BUdEmviUdjpoh4UI8dZZx41AsXEfqUX", nim: "2511037" },
-            "Hanan Tsuroya Akyasi": { img: "https://lh3.googleusercontent.com/d/1B8-4FSJGQauz6yrncfpkZRHaRLG3xTvF", nim: "2511073" },
-            "Hanni Hasanati": { img: "https://lh3.googleusercontent.com/d/1jn_xKJcu7nZ0Nl5fVhvg_NWlBmYnswUP", nim: "2511068" },
-            "Jembar Juli Yuasti": { img: "https://lh3.googleusercontent.com/d/1vQoS8GhZ3HlbwD9tqIy6a6iXBWxo4w8k", nim: "2511049" },
-            "Lusi Rahmah Oktavia": { img: "https://lh3.googleusercontent.com/d/1FaB6bGBgsxIBVtFRrd7r24fIQpUM8qlH", nim: "2511080" },
-            "Muhammad Hanif Fakhry": { img: "https://lh3.googleusercontent.com/d/1KytnHSsBLr26o56VOcyoHnjKcOP6vJPX", nim: "2511079" },
-            "Pniel Munandar": { img: "https://lh3.googleusercontent.com/d/1pWXnDqhmfewv37D679deqQQmf57RgivY", nim: "2511053" },
-            "Putri Dwi Astuti": { img: "https://lh3.googleusercontent.com/d/1h0LyPmhjMDBTDvL1zInPnD0QDEKgTNP", nim: "2511061" },
-            "Riska Ayu Kesuma": { img: "https://lh3.googleusercontent.com/d/1TsYTbbe-lnhKTV-xArDwTEXiEmongaxC", nim: "2511039" },
-            "Siti Ulfatur Rohmah": { img: "https://lh3.googleusercontent.com/d/1uT6FlbDlD0QBlmLRkwp8oY2xHrhhaZuq", nim: "2511077" },
-            "Tsabita Hasna Hanifah": { img: "https://lh3.googleusercontent.com/d/1cRGStdgeYdjFJYpHS4YZ8WsIGKSXQzx8", nim: "2511071" },
-            "Ubaidillah Musthofa": { img: "https://lh3.googleusercontent.com/d/1dKM1F66xTidpXFtt1WZAX45hSKMcocT3", nim: "2511064" },
-            "Yoana Dian Riski Astuti": { img: "https://lh3.googleusercontent.com/d/1Pri-9DSWYsbho_WVBX444W3ZmOsnDGsi", nim: "2511054" },
-            "Youvischa Aulia Arsinta": { img: "https://lh3.googleusercontent.com/d/1ahpDR_ZrU3ISQv7FSx7WwIFW6Gny9FC2", nim: "2511057" },
-            "Yuyun Lutfiyatul Khoiriyah": { img: "https://lh3.googleusercontent.com/d/1YfPxVrroo9VHQX-RF72I3hWdF5YaR5UQ", nim: "2511051" },
-            "Zain Nur Fadilah": { img: "https://lh3.googleusercontent.com/d/16Snhd6QcxqMKtQD3vYHNzw7H8_xr4QUR", nim: "2511076" }
+            "Ady Surya": { img: "1z5JRHNaprGcbhl1d5dxNKW1Y4CGVGa-A", nim: "2511038" },
+            "Ahmad Lubadul Fikri": { img: "1wivrdbIcim8CyUio4srAiZ4tPyXu6taH", nim: "2511046" },
+            "Alyvia Qurrotal Aini": { img: "11EucklVY9pmkB6-IomvtRZAyFFzVTRoW", nim: "2511042" },
+            "Anggun Lolyka Hastuti": { img: "1D2ATUmALVTpPS5CoyqlKWTsZJh8LNF2d", nim: "2511043" },
+            "Aqillah Mazaya": { img: "1Av6SMF4g5x4RVe9olnxoowj6ccqeSn50", nim: "2511043" },
+            "Arina Manasika": { img: "1j-tiqZpNxPCvCK53YDL61fXgZbydjgd1", nim: "2511065" },
+            "Devi Kurniasari": { img: "1a0bIQm8m9mIm5a3-zjQRyiW-hMF5_7D9", nim: "2511052" },
+            "Elok Iis Nurrohmah": { img: "1KIdkI-mlAZxOz0zHh6gdT8jZx_4mJe4L", nim: "2511060" },
+            "Farihatul Azizah": { img: "15BUdEmviUdjpoh4UI8dZZx41AsXEfqUX", nim: "2511037" },
+            "Hanan Tsuroya Akyasi": { img: "1B8-4FSJGQauz6yrncfpkZRHaRLG3xTvF", nim: "2511073" },
+            "Hanni Hasanati": { img: "1jn_xKJcu7nZ0Nl5fVhvg_NWlBmYnswUP", nim: "2511068" },
+            "Jembar Juli Yuasti": { img: "1vQoS8GhZ3HlbwD9tqIy6a6iXBWxo4w8k", nim: "2511049" },
+            "Lusi Rahmah Oktavia": { img: "1FaB6bGBgsxIBVtFRrd7r24fIQpUM8qlH", nim: "2511080" },
+            "Muhammad Hanif Fakhry": { img: "1KytnHSsBLr26o56VOcyoHnjKcOP6vJPX", nim: "2511079" },
+            "Pniel Munandar": { img: "1pWXnDqhmfewv37D679deqQQmf57RgivY", nim: "2511053" },
+            "Putri Dwi Astuti": { img: "1h0LyPmhjMDBTDvL1zInPnD0QDEKgTNP", nim: "2511061" },
+            "Riska Ayu Kesuma": { img: "1TsYTbbe-lnhKTV-xArDwTEXiEmongaxC", nim: "2511039" },
+            "Siti Ulfatur Rohmah": { img: "1uT6FlbDlD0QBlmLRkwp8oY2xHrhhaZuq", nim: "2511077" },
+            "Tsabita Hasna Hanifah": { img: "1cRGStdgeYdjFJYpHS4YZ8WsIGKSXQzx8", nim: "2511071" },
+            "Ubaidillah Musthofa": { img: "1dKM1F66xTidpXFtt1WZAX45hSKMcocT3", nim: "2511064" },
+            "Yoana Dian Riski Astuti": { img: "1Pri-9DSWYsbho_WVBX444W3ZmOsnDGsi", nim: "2511054" },
+            "Youvischa Aulia Arsinta": { img: "1ahpDR_ZrU3ISQv7FSx7WwIFW6Gny9FC2", nim: "2511057" },
+            "Yuyun Lutfiyatul Khoiriyah": { img: "1YfPxVrroo9VHQX-RF72I3hWdF5YaR5UQ", nim: "2511051" },
+            "Zain Nur Fadilah": { img: "16Snhd6QcxqMKtQD3vYHNzw7H8_xr4QUR", nim: "2511076" }
         };
 
         const semesterList = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
@@ -203,24 +177,41 @@
         let SERVER_PASSWORD = ""; 
         const LOCAL_STORAGE_KEY = "pai_structure_data_v1";
 
+        // --- FUNGSI PENTING: MENGUBAH LINK DRIVE BIASA JADI LINK GAMBAR LANGSUNG ---
+        function convertDriveLink(urlOrId) {
+            if (!urlOrId) return "";
+            if (urlOrId.includes("ui-avatars")) return urlOrId;
+            
+            let fileId = urlOrId;
+            
+            // Cek jika inputnya adalah URL lengkap, kita ambil ID-nya saja
+            if (urlOrId.includes("/d/")) {
+                const parts = urlOrId.split("/d/");
+                if (parts[1]) fileId = parts[1].split("/")[0];
+            } else if (urlOrId.includes("id=")) {
+                fileId = urlOrId.split("id=")[1].split("&")[0];
+            }
+            
+            // Format ID ini akan bekerja di semua device jika file bersifat Public
+            return `https://lh3.googleusercontent.com/d/${fileId}`;
+        }
+
         function enterFullscreen() {
             const elem = document.documentElement;
             if (elem.requestFullscreen) {
                 elem.requestFullscreen().catch(err => console.log(err));
-            } else if (elem.webkitRequestFullscreen) { /* Safari */
+            } else if (elem.webkitRequestFullscreen) {
                 elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) { /* IE11 */
+            } else if (elem.msRequestFullscreen) {
                 elem.msRequestFullscreen();
             }
         }
 
         window.onload = function() {
-            // Kita HAPUS pemuatan local storage awal untuk memaksa ambil data server dulu
-            // loadFromLocal(); 
+            loadFromLocal();
             
             updateSemesterDisplay();
             
-            // ANTI-CACHE: Tambahkan timestamp agar selalu dapat data baru
             const antiCacheUrl = STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime();
             loadStructureData(antiCacheUrl); 
             
@@ -253,8 +244,6 @@
         async function loadStructureData(url) {
             try {
                 const fetchUrl = url || (STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime());
-                
-                // Gunakan redirect follow untuk GAS Web App
                 const response = await fetch(fetchUrl, { redirect: 'follow' });
                 
                 if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
@@ -262,17 +251,12 @@
                 const data = await response.json();
                 if(data.meta && data.meta.password) SERVER_PASSWORD = data.meta.password;
                 
-                // Update data server
                 semesterData[semesterList[currentSemesterIndex]] = data;
-                
-                // Simpan ke lokal setelah berhasil fetch
                 saveToLocal();
-                
                 updateStructureUI(semesterList[currentSemesterIndex]);
                 
             } catch (error) { 
-                console.warn("Gagal Sync Server. Mencoba data lokal.", error);
-                loadFromLocal(); // Baru load lokal jika server gagal
+                console.warn("Gagal Sync Server. Menggunakan data lokal.", error);
                 if (!semesterData[semesterList[currentSemesterIndex]]) {
                     semesterData[semesterList[currentSemesterIndex]] = getSemesterData(semesterList[currentSemesterIndex]);
                 }
@@ -347,7 +331,8 @@
             if (!isClear && newName) {
                 const foundKey = Object.keys(dbMahasiswa).find(k => k.toLowerCase() === newName.toLowerCase());
                 if (foundKey) {
-                    matchedImg = dbMahasiswa[foundKey].img;
+                    // CONVERT URL JADI DIRECT LINK DISINI
+                    matchedImg = convertDriveLink(dbMahasiswa[foundKey].img);
                     matchedNim = dbMahasiswa[foundKey].nim;
                 } else {
                     matchedImg = `https://ui-avatars.com/api/?name=${encodeURIComponent(newName)}&background=300505&color=ffffff&bold=true`;
@@ -357,7 +342,6 @@
 
             const newData = { name: newName, img: matchedImg, nim: matchedNim };
 
-            // Update Lokal
             if (type === 'main') currentDataObj.main[key] = newData;
             else {
                 if (index !== null) currentDataObj.executor[key][index] = newData;
@@ -365,11 +349,13 @@
             }
             saveToLocal();
             
-            // Render UI
-            if (type === 'main') renderMainStructure(currentDataObj.main);
-            else if(document.getElementById('team-executor-modal').classList.contains('open')) renderTeamExecutorTree(currentDataObj.executor);
+            if(sem === "I") {
+                updateStructureUI(sem); 
+            } else {
+                if (type === 'main') renderMainStructure(currentDataObj.main);
+                else if(document.getElementById('team-executor-modal').classList.contains('open')) renderTeamExecutorTree(currentDataObj.executor);
+            }
 
-            // POST ke Server
             try {
                 const response = await fetch(STRUCTURE_SCRIPT_URL, {
                     method: 'POST',
@@ -424,17 +410,26 @@
 
         function updateStructureUI(sem) { 
             const container = document.getElementById('structure-content-container'); 
+            
+            // LAYOUT KHUSUS SEMESTER 1 (TANPA GARIS TREE, SEJAJAR)
             if (sem === "I") {
-                const data = { 
-                    ketua: { name: "Ubaidillah Musthofa", img: "Ubaidillah.jpg", nim: "2511064" }, 
-                    wakil: { name: "Pniel Munandar", img: "Pniel.jpg", nim: "2511053" }, 
-                    sek1: { name: "Riska Ayu Kesuma", img: "Ayu.jpg", nim: "2511039" }, 
-                    sek2: { name: "Yoana Dian Riski Astuti", img: "Yoana.jpg", nim: "2511054" }, 
-                    ben1: { name: "Putri Dwi Astuti", img: "Putri.jpg", nim: "2511061" }, 
-                    ben2: { name: "Anggun Lolyka Hastuti", img: "Anggun.jpg", nim: "2511043" } 
+                // Pastikan data semester 1 juga di convert link gambarnya
+                const getMhs = (name) => {
+                    const m = dbMahasiswa[name];
+                    return m ? { name: name, img: convertDriveLink(m.img), nim: m.nim } : { name: name, img: "", nim: "" };
                 };
+
+                const data = { 
+                    ketua: getMhs("Ubaidillah Musthofa"), 
+                    wakil: getMhs("Pniel Munandar"), 
+                    sek1: getMhs("Riska Ayu Kesuma"), 
+                    sek2: getMhs("Yoana Dian Riski Astuti"), 
+                    ben1: getMhs("Putri Dwi Astuti"), 
+                    ben2: getMhs("Anggun Lolyka Hastuti") 
+                };
+                
                 container.innerHTML = `
-                <div class="flex flex-col items-center w-full gap-10 mt-4">
+                <div class="flex flex-col items-center w-full gap-12 mt-4">
                     <div class="flex justify-center">
                         ${createStaticCard(data.ketua.img, data.ketua.name, data.ketua.nim, "Ketua")}
                     </div>
@@ -448,27 +443,28 @@
                         ${createStaticCard(data.ben2.img, data.ben2.name, data.ben2.nim, "Bendahara 2")}
                     </div>
                 </div>`;
-            } else {
+            } 
+            // LAYOUT SEMESTER 2-8 (KEMBALI KE TAMPILAN TREE/GARIS)
+            else {
                 renderMainStructure(getSemesterData(sem).main);
             }
         }
 
+        // FUNGSI RENDER TREE UNTUK SEMESTER 2-8 (NORMAL DENGAN GARIS & TITLE)
         function renderMainStructure(dataMain) {
             const container = document.getElementById('structure-content-container');
             container.innerHTML = `
             <div class="flex flex-col items-center w-full gap-12 mt-4">
+                <!-- Ketua -->
                 <div class="flex justify-center">
                     ${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}
                 </div>
                 
-                <div class="flex flex-wrap justify-center gap-12 md:gap-24">
-                    <div class="flex gap-6 justify-center">
-                        ${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}
-                        ${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}
-                    </div>
-                    <div class="flex gap-6 justify-center">
-                        ${createDynamicCard('ben', "Bendahara", dataMain.ben)}
-                    </div>
+                <!-- Sekretaris & Bendahara Sejajar -->
+                <div class="flex flex-wrap justify-center gap-8 md:gap-12">
+                    ${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}
+                    ${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}
+                    ${createDynamicCard('ben', "Bendahara", dataMain.ben)}
                 </div>
             </div>`;
         }
@@ -499,11 +495,13 @@
         }
 
         function createStaticCard(img, name, nim, role) { 
+            // Convert link static juga
+            const safeImg = convertDriveLink(img);
             return `
             <div class="glass-panel p-4 rounded-2xl inline-flex flex-col card-container mx-2 mb-4 justify-between">
                 <div class="flex-grow flex items-center justify-center w-full">
                     <div class="w-20 h-20 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-red-500 shadow-lg group">
-                        <img src="${img}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=300505&color=ffffff&bold=true'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110">
+                        <img src="${safeImg}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=300505&color=ffffff&bold=true'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" referrerpolicy="no-referrer">
                     </div>
                 </div>
                 <div class="flex flex-col items-center w-full">
@@ -517,7 +515,8 @@
         function createDynamicCard(key, label, data, type = 'main', index = null) {
             const name = data?.name || "";
             const nim = data?.nim || "";
-            const img = name ? (data.img || "https://ui-avatars.com/api/?name=User&background=300505&color=ffffff") : "";
+            // Gunakan convertDriveLink di sini
+            const img = name ? (convertDriveLink(data.img) || "https://ui-avatars.com/api/?name=User&background=300505&color=ffffff") : "";
             const params = `'${type}', '${key}'${index !== null ? `, ${index}` : ''}`;
 
             if (!name) return `
@@ -535,7 +534,7 @@
                 <div class="glass-panel p-4 rounded-2xl inline-flex flex-col card-container cursor-pointer mx-2 mb-4 group transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(220,38,38,0.4)] hover:border-red-500/50 justify-between" onclick="openEditModal(${params})">
                     
                     <div class="flex-grow flex items-center justify-center w-full">
-                        <img src="${img}" class="w-20 h-20 md:w-32 md:h-32 object-cover rounded-full border-2 border-gray-500 group-hover:border-red-500 flex-shrink-0 transition-all duration-300 shadow-lg">
+                        <img src="${img}" class="w-20 h-20 md:w-32 md:h-32 object-cover rounded-full border-2 border-gray-500 group-hover:border-red-500 flex-shrink-0 transition-all duration-300 shadow-lg" referrerpolicy="no-referrer">
                     </div>
 
                     <div class="flex flex-col items-center w-full">
@@ -560,7 +559,8 @@
                 form.classList.add('hidden');
                 preview.classList.remove('hidden');
                 preview.classList.add('flex');
-                document.getElementById('preview-img').src = target.img || "https://ui-avatars.com/api/?name=User";
+                // Convert link saat preview
+                document.getElementById('preview-img').src = convertDriveLink(target.img) || "https://ui-avatars.com/api/?name=User";
                 document.getElementById('preview-name').innerText = target.name;
             } else {
                 form.classList.remove('hidden');
