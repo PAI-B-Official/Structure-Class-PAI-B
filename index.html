@@ -27,11 +27,18 @@
                     },
                     animation: {
                         'fade-in': 'fadeIn 0.4s ease-out forwards',
+                        'shake': 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both',
                     },
                     keyframes: {
                         fadeIn: {
                             '0%': { opacity: '0', transform: 'translateY(10px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
                         }
                     }
                 }
@@ -144,14 +151,26 @@
 
     <!-- MODAL PASSWORD -->
     <div id="password-modal" class="custom-modal">
-        <div class="bg-[#0f0505] border-2 border-red-800 rounded-2xl w-full max-w-xs mx-4 shadow-2xl text-center p-6">
-            <div class="mb-4"><i class="fas fa-lock text-4xl text-red-600 mb-2"></i><h3 class="text-lg font-bold text-white font-tech uppercase tracking-widest">Keamanan Data</h3></div>
-            <p class="text-gray-400 text-xs mb-3">Masukkan PIN Admin (Sesuai Database D1)</p>
-            <input type="password" id="admin-password" class="w-full bg-black border border-gray-700 rounded-lg py-3 px-4 text-white text-center focus:border-red-600 mb-2 tracking-[0.5em] text-lg outline-none" placeholder="••••">
-            <p id="password-error" class="text-red-500 text-[10px] mb-4 hidden font-bold bg-red-900/20 py-2 px-2 rounded border border-red-900/50">PASSWORD SALAH!</p>
-            <div class="flex gap-3 mt-4">
-                <button onclick="closeModalWithHistory('password-modal')" class="flex-1 py-2 rounded-lg border border-gray-700 text-gray-400 text-xs font-bold uppercase hover:bg-gray-900">Batal</button>
-                <button id="btn-confirm-save" onclick="confirmAction()" class="flex-1 py-2 rounded-lg bg-red-800 text-white font-bold hover:bg-red-700 text-xs uppercase tracking-wider shadow-lg">VERIFIKASI</button>
+        <div id="password-box" class="bg-[#0f0505] border-2 border-red-800 rounded-2xl w-full max-w-xs mx-4 shadow-2xl text-center p-6 relative transition-transform">
+            <div class="mb-4">
+                <i class="fas fa-lock text-4xl text-red-600 mb-2"></i>
+                <h3 class="text-lg font-bold text-white font-tech uppercase tracking-widest">Keamanan Data</h3>
+            </div>
+            
+            <p class="text-gray-400 text-xs mb-3">Masukkan PIN Admin (Database D1)</p>
+            
+            <input type="password" id="admin-password" class="w-full bg-black border border-gray-700 rounded-lg py-3 px-4 text-white text-center focus:border-red-600 mb-4 tracking-[0.5em] text-lg outline-none transition-all" placeholder="••••">
+            
+            <!-- ERROR MESSAGE (PERSISTENT UNTIL TYPING) -->
+            <div id="password-error" class="bg-red-950/80 border border-red-500 rounded p-2 mb-4 hidden animate-fade-in">
+                <p class="text-red-400 text-[10px] font-bold uppercase flex items-center justify-center gap-2">
+                    <i class="fas fa-exclamation-triangle"></i> <span id="error-text">PASSWORD SALAH!</span>
+                </p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeModalWithHistory('password-modal')" class="flex-1 py-2 rounded-lg border border-gray-700 text-gray-400 text-xs font-bold uppercase hover:bg-gray-900 transition-colors">Batal</button>
+                <button id="btn-confirm-save" onclick="confirmAction()" class="flex-1 py-2 rounded-lg bg-red-800 text-white font-bold hover:bg-red-700 text-xs uppercase tracking-wider shadow-lg transition-all">VERIFIKASI</button>
             </div>
         </div>
     </div>
@@ -216,7 +235,7 @@
 
     <script>
         // GANTI URL DI BAWAH INI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
-        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwu42KTX5gLXsJZS1G9PoRSvMJ4TXs-p_bbfroVtZe48eFYSA2etVxXe8nDhhRjYfNsNQ/exec";
+        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyGAYfn8Yd3ARrZRF3lfKniBlr7iv2OpaloxOYqyG8puhWzihZq3m8BiVORyEcJRaMGEg/exec";
         
         const nicknameMap = {
             "ady": "Ady Surya", "fikri": "Ahmad Lubadul Fikri", "alyvia": "Alyvia Qurrotal Aini", "anggun": "Anggun Lolyk Hastuti",
@@ -300,6 +319,16 @@
             loadDataFromServer();
             document.getElementById('input-name').addEventListener('keypress', (e) => { if (e.key === 'Enter') initiateAction('save'); });
             document.getElementById('admin-password').addEventListener('keypress', (e) => { if (e.key === 'Enter') confirmAction(); });
+            
+            // REMOVE ERROR ON TYPING
+            document.getElementById('admin-password').addEventListener('input', function() {
+                const errBox = document.getElementById('password-error');
+                if(!errBox.classList.contains('hidden')) {
+                    errBox.classList.add('hidden');
+                    this.classList.remove('border-red-600', 'text-red-500');
+                    this.classList.add('border-gray-700', 'text-white');
+                }
+            });
         };
 
         function refreshData() {
@@ -336,78 +365,51 @@
             return semesterData[sem];
         }
 
-        // --- NEW IMAGE HANDLING WITH CROPPER ---
         function handleFileSelect(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Buka Modal Crop
                     const cropModal = document.getElementById('crop-modal');
                     const imageElement = document.getElementById('image-to-crop');
-                    
                     imageElement.src = e.target.result;
-                    cropModal.classList.add('active'); // Tampilkan modal
-                    
-                    // Inisialisasi Cropper
+                    cropModal.classList.add('active');
                     if(cropperInstance) cropperInstance.destroy();
-                    
                     cropperInstance = new Cropper(imageElement, {
-                        aspectRatio: 1, // Kunci rasio 1:1
-                        viewMode: 1,
-                        dragMode: 'move',
-                        autoCropArea: 1,
-                        responsive: true,
-                        restore: false,
-                        guides: true,
-                        center: true,
-                        highlight: false,
-                        cropBoxMovable: true,
-                        cropBoxResizable: true,
-                        toggleDragModeOnDblclick: false,
+                        aspectRatio: 1, viewMode: 1, dragMode: 'move', autoCropArea: 1, responsive: true,
+                        restore: false, guides: true, center: true, highlight: false, cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
                     });
                 }
                 reader.readAsDataURL(file);
             }
-            // Reset input file agar bisa pilih file yang sama lagi
             input.value = '';
         }
 
         function closeCropModal() {
             document.getElementById('crop-modal').classList.remove('active');
-            if(cropperInstance) {
-                cropperInstance.destroy();
-                cropperInstance = null;
-            }
+            if(cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
         }
 
         function cropAndSave() {
             if(!cropperInstance) return;
-            
-            // Ambil hasil crop dengan resolusi tinggi (800x800) untuk mengatasi buram
             const canvas = cropperInstance.getCroppedCanvas({
-                width: 800,  // Resolusi ditingkatkan agar jernih
-                height: 800,
-                fillColor: '#fff',
-                imageSmoothingEnabled: true,
-                imageSmoothingQuality: 'high',
+                width: 800, height: 800, fillColor: '#fff', imageSmoothingEnabled: true, imageSmoothingQuality: 'high',
             });
-
-            // Konversi ke base64 dengan kualitas 90%
             tempImageBase64 = canvas.toDataURL('image/jpeg', 0.9);
-            
-            // Update Preview di Edit Modal
             document.getElementById('img-preview-edit').src = tempImageBase64;
             document.getElementById('img-preview-edit').classList.remove('hidden');
             document.getElementById('upload-placeholder').classList.add('opacity-0');
-            
             closeCropModal();
         }
 
         function initiateAction(action) {
             pendingAction = action;
-            document.getElementById('password-error').classList.add('hidden');
-            document.getElementById('admin-password').value = '';
+            // Reset error state
+            const errBox = document.getElementById('password-error');
+            const passInput = document.getElementById('admin-password');
+            errBox.classList.add('hidden');
+            passInput.value = '';
+            passInput.classList.remove('border-red-600', 'text-red-500');
             
             if (history.state && history.state.modal === 'edit-modal') {
                 history.back(); 
@@ -447,50 +449,65 @@
 
             if (!isClear) {
                 finalNim = studentDatabase[nameToSave.toLowerCase()] || "-";
+                // DO NOT CLEAR tempImageBase64 HERE ON FAIL
+                // Use tempImageBase64 if available (newly cropped), otherwise use old image, otherwise avatar
                 finalImg = tempImageBase64 ? tempImageBase64 : (oldData && oldData.img ? oldData.img : `https://ui-avatars.com/api/?name=${encodeURIComponent(nameToSave)}&background=300505&color=ffffff&bold=true`);
             }
 
             const newData = { name: nameToSave, img: finalImg, nim: finalNim };
-            
-            // Simpan referensi data lama
-            const previousData = JSON.parse(JSON.stringify(currentDataObj));
+            const previousData = JSON.parse(JSON.stringify(currentDataObj)); // Backup
 
-            // Optimistic Update (Update lokal dulu)
+            // Optimistic Update
             if (type === 'main') currentDataObj.main[key] = newData;
             else { if (index !== null) currentDataObj.executor[key][index] = newData; else currentDataObj.executor[key] = newData; }
-            
             updateStructureUI(sem); 
             
             try {
-                // Kirim ke server
                 const res = await fetch(STRUCTURE_SCRIPT_URL, { 
                     method: 'POST', 
-                    body: JSON.stringify({ 
-                        password: password, 
-                        structure: semesterData 
-                    }) 
+                    body: JSON.stringify({ password: password, structure: semesterData }) 
                 });
                 const result = await res.json();
                 
                 if (result.status === "success") {
                     btn.innerText = "BERHASIL";
-                    setTimeout(() => { closeModalWithHistory('password-modal'); btn.innerText = originalText; btn.disabled = false; }, 800);
+                    setTimeout(() => { 
+                        closeModalWithHistory('password-modal'); 
+                        btn.innerText = originalText; 
+                        btn.disabled = false;
+                        // HANYA RESET JIKA SUKSES
+                        input.value = ""; 
+                        currentEditTarget = null; 
+                        tempImageBase64 = null; 
+                    }, 800);
                 } else {
-                    // Jika gagal, kembalikan data lokal ke state sebelumnya
-                    if (type === 'main') currentDataObj.main = previousData.main;
-                    else currentDataObj.executor = previousData.executor;
-                    updateStructureUI(sem); // Revert UI
-                    
                     throw new Error(result.message);
                 }
             } catch (e) {
-                // Tampilkan Error di UI
-                const errorMsg = e.message || "GAGAL SIMPAN ONLINE";
-                document.getElementById('password-error').innerText = errorMsg;
-                document.getElementById('password-error').classList.remove('hidden');
+                // REVERT DATA
+                if (type === 'main') currentDataObj.main = previousData.main;
+                else currentDataObj.executor = previousData.executor;
+                updateStructureUI(sem); 
+
+                // SHOW ERROR VISUALLY
+                const errorMsg = e.message || "PASSWORD SALAH!";
+                const errorEl = document.getElementById('password-error');
+                document.getElementById('error-text').innerText = errorMsg;
+                errorEl.classList.remove('hidden');
+                
+                const passBox = document.getElementById('password-box');
+                passBox.classList.remove('animate-shake');
+                void passBox.offsetWidth; // Force reflow
+                passBox.classList.add('animate-shake');
+                
+                const passInput = document.getElementById('admin-password');
+                passInput.classList.remove('border-gray-700', 'text-white');
+                passInput.classList.add('border-red-600', 'text-red-500');
+                passInput.focus();
+
                 btn.innerText = originalText; btn.disabled = false;
+                // DO NOT RESET tempImageBase64 HERE
             }
-            input.value = ""; currentEditTarget = null; tempImageBase64 = null; 
         }
 
         function updateSemesterDisplay(animate = true) { 
