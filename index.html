@@ -65,20 +65,20 @@
         .empty-slot { border: 1px dashed rgba(150, 150, 150, 0.3); background: rgba(20, 0, 0, 0.2); }
         .empty-slot:hover { border-color: #ef4444; border-style: solid; }
         
-        /* CARD SIZE - MOBILE OPTIMIZED (Lebih Besar) */
+        /* CARD SIZE */
         .card-container { 
-            width: 46vw; /* Hampir setengah layar */
+            width: 100%; /* Flexible inside grid/wrapper */
             height: auto; 
-            aspect-ratio: 9/15; /* Proporsi memanjang vertikal */
-            margin: 0.5vw; /* Jarak antar kartu sangat tipis */
+            aspect-ratio: 9/15; 
+            margin: 0; 
         }
         
-        /* CARD SIZE - DESKTOP */
+        /* DESKTOP SIZE */
         @media (min-width: 768px) { 
             .card-container { 
                 width: 250px; 
                 height: 400px; 
-                margin: 1rem;
+                margin: 0 auto; 
                 aspect-ratio: auto;
             } 
         }
@@ -115,21 +115,17 @@
                         </div>
                     </div>
 
-                    <!-- NAVIGASI SEMESTER (THEMED) -->
+                    <!-- NAVIGASI SEMESTER -->
                     <div class="max-w-4xl mx-auto px-2 flex flex-col items-center justify-center">
-                        <!-- Background diganti Gradient Red-Black -->
                         <div class="relative w-full max-w-xl flex items-center justify-center bg-gradient-to-r from-red-950 via-black to-red-950 h-16 md:h-20 rounded-xl border border-red-600/50 shadow-[0_0_15px_rgba(220,38,38,0.3)] overflow-hidden">
-                            
                             <button onclick="prevSemester()" id="btn-prev-sem" class="hidden md:block absolute left-0 h-full px-6 z-20 text-3xl text-red-600 hover:text-white hover:bg-red-900/30 transition-all"><i class="fas fa-chevron-left"></i></button>
-                            
                             <div class="text-center w-full flex flex-col items-center justify-center h-full">
                                 <h3 id="current-semester-display" class="font-tech text-2xl md:text-4xl text-white font-bold tracking-[0.1em] transition-all drop-shadow-md">SEMESTER I</h3>
                             </div>
-                            
                             <button onclick="nextSemester()" id="btn-next-sem" class="hidden md:block absolute right-0 h-full px-6 z-20 text-3xl text-red-600 hover:text-white hover:bg-red-900/30 transition-all"><i class="fas fa-chevron-right"></i></button>
                         </div>
 
-                        <!-- TOMBOL REFRESH DATA -->
+                        <!-- TOMBOL REFRESH -->
                         <button onclick="refreshData()" id="btn-refresh" class="mt-3 group relative px-4 py-2 bg-black/60 rounded-full border border-red-800/60 hover:border-red-500 hover:bg-red-950/40 transition-all active:scale-95">
                             <div class="flex items-center gap-2 text-xs text-red-200/70 group-hover:text-white font-tech tracking-wider">
                                 <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i> REFRESH DATA
@@ -250,14 +246,9 @@
         let studentDatabase = {}; 
         let tempImageBase64 = null;
 
-        // --- BACK BUTTON LOGIC (HISTORY API) ---
-        // Saat membuka modal, kita push state baru. Saat tombol back ditekan (popstate), kita tutup modal.
-        
+        // --- BACK BUTTON LOGIC ---
         function openModalWithHistory(modalId) {
-            // Push state agar tombol back bisa mendeteksi perubahan
             history.pushState({modal: modalId}, null, "");
-            
-            // Logika UI Buka Modal
             if (modalId === 'team-executor-modal') {
                 renderTeamExecutorTree(getSemesterData(semesterList[currentSemesterIndex]).executor);
                 document.getElementById(modalId).classList.add('open');
@@ -269,18 +260,14 @@
         }
 
         function closeModalWithHistory(modalId) {
-            // Jika user menutup manual (klik silang/batal), kita kembali (back) history-nya
-            // supaya state modal hilang dari stack history browser
             if (history.state && history.state.modal === modalId) {
-                history.back(); // Ini akan memicu event 'popstate' di bawah
+                history.back();
             } else {
-                // Fallback jika state tidak sesuai (misal reload)
                 closeModalUI(modalId);
             }
         }
 
         function closeModalUI(modalId) {
-            // Logika murni menutup UI tanpa ganggu history
             if (modalId === 'team-executor-modal') {
                 document.getElementById(modalId).classList.remove('open');
                 document.getElementById('main-content-wrapper').classList.remove('blur-content');
@@ -290,9 +277,7 @@
             }
         }
 
-        // Event Listener Tombol Back HP
         window.onpopstate = function(event) {
-            // Cek semua modal, jika ada yang terbuka, tutup UI-nya
             ['team-executor-modal', 'edit-modal', 'password-modal'].forEach(id => {
                 const modal = document.getElementById(id);
                 if (modal.classList.contains('active') || modal.classList.contains('open')) {
@@ -300,7 +285,6 @@
                 }
             });
         };
-
 
         function toggleFullscreen() {
             const elem = document.documentElement;
@@ -354,11 +338,14 @@
                     if (Object.keys(semesterData).length === 0) semesterList.forEach(sem => semesterData[sem] = getEmptySemesterData());
                     updateSemesterDisplay(false);
                 }
-            } catch (error) { console.error(error); } 
+            } catch (error) { 
+                console.error("Gagal memuat data:", error); 
+                // Auto retry logic (silent)
+                setTimeout(loadDataFromServer, 3000);
+            } 
             finally { indicator.classList.add('hidden'); }
         }
 
-        // SCHEMA DATA
         function getEmptySemesterData() {
             return { 
                 main: { 
@@ -409,17 +396,8 @@
             document.getElementById('password-error').classList.add('hidden');
             document.getElementById('admin-password').value = '';
             
-            // Ganti pemanggilan UI manual dengan History API
-            // closeModalUI('edit-modal'); -- JANGAN DIGUNAKAN MANUAL
-            // openModalWithHistory('password-modal'); -- JANGAN LANGSUNG
-            
-            // Trik: Tutup edit modal dulu, tapi karena kita mau buka password modal,
-            // kita bisa replace state atau back dulu baru push.
-            // Cara aman: Back dulu untuk tutup Edit, lalu Push untuk Password.
-            
             if (history.state && history.state.modal === 'edit-modal') {
-                history.back(); // Tutup Edit
-                // Tunggu sebentar sampai popstate selesai, lalu buka password
+                history.back(); 
                 setTimeout(() => {
                     openModalWithHistory('password-modal');
                     document.getElementById('admin-password').focus();
@@ -518,17 +496,18 @@
             const container = document.getElementById('structure-content-container');
             
             if (sem === "I") {
+                // UPDATE: Sek1, Sek2, Ben1, Ben2 berjejer 4 kolom di Laptop
                 container.innerHTML = `
                 <div class="flex flex-col items-center w-full gap-6 md:gap-10 mt-2 animate-fade-in pb-10">
                     <div class="flex flex-col md:flex-row justify-center gap-6 md:gap-12 w-full px-2">
-                        <!-- Wrapper Flex Row untuk Mobile agar 2 kolom -->
-                        <div class="flex justify-center gap-2 w-full">
+                        <div class="grid grid-cols-2 gap-2 w-full md:w-auto place-items-center">
                              ${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}
                              ${createDynamicCard('wakil', "Wakil Ketua", dataMain.wakil)}
                         </div>
                     </div>
                     <div class="w-full max-w-5xl border-t border-red-900/30 my-2"></div>
-                    <div class="flex flex-wrap justify-center gap-2 md:gap-10 w-full px-2">
+                    <!-- 4 Kolom untuk Sek & Ben -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-8 w-full max-w-6xl px-2 place-items-center">
                         ${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}
                         ${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}
                         ${createDynamicCard('ben1', "Bendahara 1", dataMain.ben1)}
@@ -536,15 +515,27 @@
                     </div>
                 </div>`;
             } else {
+                // UPDATE: Jajar Genjang / Diamond Layout (1 - 2 - 1)
                 container.innerHTML = `
-                <div class="flex flex-col items-center w-full gap-8 md:gap-12 mt-4 animate-fade-in pb-10">
+                <div class="flex flex-col items-center w-full gap-4 md:gap-10 mt-4 animate-fade-in pb-10">
+                    <!-- ATAS (KETUA) - Single -->
                     <div class="flex justify-center w-full">
-                        ${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}
+                        <div class="w-[46vw] md:w-auto flex justify-center">
+                            ${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}
+                        </div>
                     </div>
-                    <div class="flex flex-wrap justify-center gap-2 md:gap-12 w-full px-2">
+                    
+                    <!-- TENGAH (SEKRETARIS) - 2 Kolom -->
+                    <div class="grid grid-cols-2 gap-2 justify-center w-full px-2 md:flex md:gap-12 md:w-auto">
                         ${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}
                         ${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}
-                        ${createDynamicCard('ben', "Bendahara", dataMain.ben)}
+                    </div>
+
+                    <!-- BAWAH (BENDAHARA) - Single -->
+                    <div class="flex justify-center w-full">
+                        <div class="w-[46vw] md:w-auto flex justify-center">
+                            ${createDynamicCard('ben', "Bendahara", dataMain.ben)}
+                        </div>
                     </div>
                 </div>`;
             }
@@ -552,25 +543,26 @@
 
         function renderTeamExecutorTree(dataEx) {
             const container = document.getElementById('executor-tree-container');
+            // UPDATE: Grid 2 Kolom untuk item executor
             container.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mt-4 w-full max-w-7xl animate-fade-in">
                     <div class="flex flex-col items-center gap-4">
                         <div class="w-full bg-orange-900/20 border border-orange-500/30 rounded-lg py-2 text-center mb-2">
                             <div class="text-orange-400 text-lg font-bold font-tech uppercase tracking-widest">KREATIF</div>
                         </div>
-                        <div class="flex flex-wrap justify-center gap-2 md:gap-4 w-full">${dataEx.div_kreatif.map((m, i) => createDynamicCard('div_kreatif', `Creative ${i+1}`, m, 'executor', i)).join('')}</div>
+                        <div class="grid grid-cols-2 gap-2 w-full place-items-center">${dataEx.div_kreatif.map((m, i) => createDynamicCard('div_kreatif', `Creative ${i+1}`, m, 'executor', i)).join('')}</div>
                     </div>
                     <div class="flex flex-col items-center gap-4">
                          <div class="w-full bg-red-900/20 border border-red-500/30 rounded-lg py-2 text-center mb-2">
                             <div class="text-red-400 text-lg font-bold font-tech uppercase tracking-widest">KEBERSIHAN</div>
                         </div>
-                        <div class="flex flex-wrap justify-center gap-2 md:gap-4 w-full">${dataEx.div_kebersihan.map((m, i) => createDynamicCard('div_kebersihan', `Cleaner ${i+1}`, m, 'executor', i)).join('')}</div>
+                        <div class="grid grid-cols-2 gap-2 w-full place-items-center">${dataEx.div_kebersihan.map((m, i) => createDynamicCard('div_kebersihan', `Cleaner ${i+1}`, m, 'executor', i)).join('')}</div>
                     </div>
                     <div class="flex flex-col items-center gap-4">
                          <div class="w-full bg-yellow-900/20 border border-yellow-500/30 rounded-lg py-2 text-center mb-2">
                             <div class="text-yellow-400 text-lg font-bold font-tech uppercase tracking-widest">SOSIAL</div>
                         </div>
-                        <div class="flex flex-wrap justify-center gap-2 md:gap-4 w-full">${dataEx.div_sosial.map((m, i) => createDynamicCard('div_sosial', `Social ${i+1}`, m, 'executor', i)).join('')}</div>
+                        <div class="grid grid-cols-2 gap-2 w-full place-items-center">${dataEx.div_sosial.map((m, i) => createDynamicCard('div_sosial', `Social ${i+1}`, m, 'executor', i)).join('')}</div>
                     </div>
                 </div>`;
         }
@@ -606,7 +598,6 @@
                 </div>`;
         }
 
-        // Logic UI Edit Modal (Isi kontennya)
         function openEditModal(type, key, index = null, labelName = 'ANGGOTA') {
             currentEditTarget = { type, key, index };
             const data = getSemesterData(semesterList[currentSemesterIndex]);
