@@ -326,12 +326,29 @@
             }
         }
 
-        let touchStartX = 0; let touchEndX = 0;
-        document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+        let touchStartX = 0; 
+        let touchStartY = 0; 
+
+        document.addEventListener('touchstart', e => { 
+            touchStartX = e.changedTouches[0].screenX; 
+            touchStartY = e.changedTouches[0].screenY;
+        }, {passive: true});
+        
         document.addEventListener('touchend', e => { 
-            touchEndX = e.changedTouches[0].screenX;
-            if (touchEndX < touchStartX - 50) nextSemester();
-            if (touchEndX > touchStartX + 50) prevSemester();
+            // Jika ada modal yang terbuka, jangan jalankan swipe logic
+            if (document.querySelector('.open') || document.querySelector('.active')) return;
+
+            const touchEndX = e.changedTouches[0].screenX;
+            const touchEndY = e.changedTouches[0].screenY;
+            
+            const diffX = touchStartX - touchEndX;
+            const diffY = touchStartY - touchEndY;
+
+            // Pastikan pergerakan horizontal dominan (lebih besar dari vertikal) dan melebihi threshold
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                if (diffX > 0) nextSemester(); // Swipe Kiri (Next)
+                else prevSemester(); // Swipe Kanan (Prev)
+            }
         }, {passive: true});
 
         window.onload = function() {
