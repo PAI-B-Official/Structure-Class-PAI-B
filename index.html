@@ -144,13 +144,14 @@
 
     <!-- MODAL PASSWORD -->
     <div id="password-modal" class="custom-modal">
-        <div class="bg-[#0f0505] border border-red-800 rounded-xl p-6 max-w-xs w-full mx-4 shadow-2xl text-center">
-            <div class="mb-4"><i class="fas fa-lock text-4xl text-red-600 mb-2"></i><h3 class="text-lg font-bold text-white font-tech uppercase tracking-widest">Masukan PIN</h3></div>
+        <div class="bg-[#0f0505] border-2 border-red-800 rounded-2xl w-full max-w-xs mx-4 shadow-2xl text-center p-6">
+            <div class="mb-4"><i class="fas fa-lock text-4xl text-red-600 mb-2"></i><h3 class="text-lg font-bold text-white font-tech uppercase tracking-widest">Keamanan Data</h3></div>
+            <p class="text-gray-400 text-xs mb-3">Masukkan PIN Admin (Sesuai Database D1)</p>
             <input type="password" id="admin-password" class="w-full bg-black border border-gray-700 rounded-lg py-3 px-4 text-white text-center focus:border-red-600 mb-2 tracking-[0.5em] text-lg outline-none" placeholder="••••">
-            <p id="password-error" class="text-red-500 text-[10px] mb-4 hidden font-bold bg-red-900/20 py-1 rounded">PASSWORD SALAH!</p>
+            <p id="password-error" class="text-red-500 text-[10px] mb-4 hidden font-bold bg-red-900/20 py-2 px-2 rounded border border-red-900/50">PASSWORD SALAH!</p>
             <div class="flex gap-3 mt-4">
                 <button onclick="closeModalWithHistory('password-modal')" class="flex-1 py-2 rounded-lg border border-gray-700 text-gray-400 text-xs font-bold uppercase hover:bg-gray-900">Batal</button>
-                <button id="btn-confirm-save" onclick="confirmAction()" class="flex-1 py-2 rounded-lg bg-red-800 text-white font-bold hover:bg-red-700 text-xs uppercase tracking-wider shadow-lg">KONFIRMASI</button>
+                <button id="btn-confirm-save" onclick="confirmAction()" class="flex-1 py-2 rounded-lg bg-red-800 text-white font-bold hover:bg-red-700 text-xs uppercase tracking-wider shadow-lg">VERIFIKASI</button>
             </div>
         </div>
     </div>
@@ -172,9 +173,9 @@
                     </label>
                 </div>
                 <div class="mb-6">
-                    <label class="block text-red-500 text-[10px] font-bold uppercase mb-2 tracking-wider">Nama Lengkap</label>
-                    <input type="text" id="input-name" class="w-full bg-black/40 border border-gray-700 rounded-lg py-3 px-4 text-white focus:border-red-500 focus:outline-none placeholder-gray-700 text-sm" placeholder="Contoh : Tukiman" autocomplete="off">
-                    <p class="text-[10px] text-gray-600 mt-1">Pastikan Nama sesuai Identitas</p>
+                    <label class="block text-red-500 text-[10px] font-bold uppercase mb-2 tracking-wider">Nama Lengkap / Panggilan</label>
+                    <input type="text" id="input-name" class="w-full bg-black/40 border border-gray-700 rounded-lg py-3 px-4 text-white focus:border-red-500 focus:outline-none placeholder-gray-700 text-sm" placeholder="Contoh: 'Fikri' atau Nama Lengkap..." autocomplete="off">
+                    <p class="text-[10px] text-gray-600 mt-1">Ketik nama panggilan untuk auto-complete</p>
                 </div>
                 <div class="flex gap-3">
                     <button onclick="closeModalWithHistory('edit-modal')" class="flex-1 py-3 rounded-lg border border-gray-700 text-gray-500 text-xs font-bold uppercase">Batal</button>
@@ -214,7 +215,8 @@
     </div>
 
     <script>
-        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcKGhzY2rm29bPLlvC1-sQ_oYWPtVoGADmWoVYT3LpqLjzQ3VZipI5cwosQsu3ka6H/exec";
+        // GANTI URL DI BAWAH INI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
+        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwu42KTX5gLXsJZS1G9PoRSvMJ4TXs-p_bbfroVtZe48eFYSA2etVxXe8nDhhRjYfNsNQ/exec";
         
         const nicknameMap = {
             "ady": "Ady Surya", "fikri": "Ahmad Lubadul Fikri", "alyvia": "Alyvia Qurrotal Aini", "anggun": "Anggun Lolyk Hastuti",
@@ -426,7 +428,7 @@
             if (!currentEditTarget) return;
             const btn = document.getElementById('btn-confirm-save');
             const originalText = btn.innerText;
-            btn.innerText = "Proses..."; btn.disabled = true;
+            btn.innerText = "MEMERIKSA..."; btn.disabled = true;
 
             const input = document.getElementById('input-name');
             let nameToSave = isClear ? "" : input.value.trim();
@@ -449,20 +451,42 @@
             }
 
             const newData = { name: nameToSave, img: finalImg, nim: finalNim };
+            
+            // Simpan referensi data lama
+            const previousData = JSON.parse(JSON.stringify(currentDataObj));
+
+            // Optimistic Update (Update lokal dulu)
             if (type === 'main') currentDataObj.main[key] = newData;
             else { if (index !== null) currentDataObj.executor[key][index] = newData; else currentDataObj.executor[key] = newData; }
             
             updateStructureUI(sem); 
             
             try {
-                const res = await fetch(STRUCTURE_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ password: password, structure: semesterData }) });
+                // Kirim ke server
+                const res = await fetch(STRUCTURE_SCRIPT_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        password: password, 
+                        structure: semesterData 
+                    }) 
+                });
                 const result = await res.json();
+                
                 if (result.status === "success") {
                     btn.innerText = "BERHASIL";
                     setTimeout(() => { closeModalWithHistory('password-modal'); btn.innerText = originalText; btn.disabled = false; }, 800);
-                } else throw new Error(result.message);
+                } else {
+                    // Jika gagal, kembalikan data lokal ke state sebelumnya
+                    if (type === 'main') currentDataObj.main = previousData.main;
+                    else currentDataObj.executor = previousData.executor;
+                    updateStructureUI(sem); // Revert UI
+                    
+                    throw new Error(result.message);
+                }
             } catch (e) {
-                document.getElementById('password-error').innerText = "GAGAL SIMPAN ONLINE";
+                // Tampilkan Error di UI
+                const errorMsg = e.message || "GAGAL SIMPAN ONLINE";
+                document.getElementById('password-error').innerText = errorMsg;
                 document.getElementById('password-error').classList.remove('hidden');
                 btn.innerText = originalText; btn.disabled = false;
             }
