@@ -162,7 +162,8 @@
     </div>
 
     <script>
-        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbym5toFgMseIHyWG4Kg9b0WbKz___dundWq7_aHngjk0qrWIf1Tynk0Nnx8wbEM5gqfyg/exec";
+        // PASTIKAN MENGGANTI URL INI DENGAN URL DEPLOYMENT TERBARU ANDA
+        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxjXB5BDbYIG3Rx5Ie3fFlATtVGk2MOU-AHT9RyTcNNyqBaQURJF2WtTplIEX9lV2mewg/exec";
 
         const dbMahasiswa = {
             "Ady Surya": { img: "https://lh3.googleusercontent.com/d/1z5JRHNaprGcbhl1d5dxNKW1Y4CGVGa-A", nim: "2511038" },
@@ -211,11 +212,14 @@
         }
 
         window.onload = function() {
-            // LOAD DARI LOCAL STORAGE DULU (AGAR CEPAT & TERSIMPAN SAAT REFRESH)
+            // LOAD DARI LOCAL STORAGE DULU
             loadFromLocal();
             
             updateSemesterDisplay();
-            loadStructureData(); // Background fetch untuk sync terbaru
+            
+            // ANTI-CACHE: Tambahkan timestamp agar selalu dapat data baru
+            const antiCacheUrl = STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime();
+            loadStructureData(antiCacheUrl); 
             
             document.getElementById('input-name').addEventListener('keypress', (e) => { if (e.key === 'Enter') initiateAction('save'); });
             document.getElementById('admin-password').addEventListener('keypress', (e) => { if (e.key === 'Enter') confirmAction(); });
@@ -245,24 +249,27 @@
         }
         // --------------------------------
 
-        async function loadStructureData() {
+        async function loadStructureData(url) {
             try {
-                const response = await fetch(STRUCTURE_SCRIPT_URL, { redirect: 'follow' });
+                // Gunakan URL yang sudah ada timestampnya jika tersedia
+                const fetchUrl = url || (STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime());
+                
+                const response = await fetch(fetchUrl, { redirect: 'follow' });
                 if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
                 
                 const data = await response.json();
                 if(data.meta && data.meta.password) SERVER_PASSWORD = data.meta.password;
                 
-                // Update data untuk semester selain 1 (karena 1 hardcoded)
+                // Update data semester (kecuali 1 yang hardcoded)
                 semesterData[semesterList[currentSemesterIndex]] = data;
                 
-                // Simpan versi terbaru dari server ke lokal
+                // Simpan ke lokal agar refresh selanjutnya cepat
                 saveToLocal();
                 
                 updateStructureUI(semesterList[currentSemesterIndex]);
                 
             } catch (error) { 
-                console.warn("Mode Offline / Gagal Fetch. Menggunakan data lokal.", error);
+                console.warn("Gagal Sync Server. Menggunakan data lokal.", error);
                 if (!semesterData[semesterList[currentSemesterIndex]]) {
                     semesterData[semesterList[currentSemesterIndex]] = getSemesterData(semesterList[currentSemesterIndex]);
                 }
@@ -327,7 +334,6 @@
 
             if (!isClear && newName) {
                 const foundKey = Object.keys(dbMahasiswa).find(k => k.toLowerCase() === newName.toLowerCase());
-                
                 if (foundKey) {
                     matchedImg = dbMahasiswa[foundKey].img;
                     matchedNim = dbMahasiswa[foundKey].nim;
@@ -346,17 +352,15 @@
                 else currentDataObj.executor[key] = newData;
             }
 
-            // SIMPAN KE LOKAL (Instant Update & Persistence)
+            // 1. Simpan Lokal & Render (Agar user merasa instan)
             saveToLocal();
-
-            // UPDATE UI
             if (type === 'main') {
                 renderMainStructure(currentDataObj.main);
             } else if(document.getElementById('team-executor-modal').classList.contains('open')) {
                 renderTeamExecutorTree(currentDataObj.executor);
             }
 
-            // KIRIM KE SERVER (Background Sync)
+            // 2. Simpan ke Cloud (Google Sheet)
             try {
                 await fetch(STRUCTURE_SCRIPT_URL, {
                     method: 'POST', mode: 'no-cors', 
@@ -369,7 +373,7 @@
                         nim: newData.nim
                     })
                 });
-            } catch (e) { console.error("Sync Error:", e); }
+            } catch (e) { console.error("Gagal simpan ke Cloud:", e); }
             
             input.value = "";
             currentEditTarget = null;
@@ -394,7 +398,6 @@
         function updateStructureUI(sem) { 
             const container = document.getElementById('structure-content-container'); 
             if (sem === "I") {
-                // SEMESTER I TETAP STATIC (HARDCODED) - TIDAK DIPENGARUHI LOCAL STORAGE / DB
                 const data = { 
                     ketua: { name: "Ubaidillah Musthofa", img: "Ubaidillah.jpg", nim: "2511064" }, 
                     wakil: { name: "Pniel Munandar", img: "Pniel.jpg", nim: "2511053" }, 
@@ -425,24 +428,17 @@
 
         function renderMainStructure(dataMain) {
             const container = document.getElementById('structure-content-container');
-            // Menghilangkan class tree dan struktur list untuk menghapus garis
-            // Menghilangkan div header (title divisi berkolom)
             container.innerHTML = `
             <div class="flex flex-col items-center w-full gap-12 mt-4">
-                <!-- Ketua Layer -->
                 <div class="flex justify-center">
                     ${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}
                 </div>
                 
-                <!-- Bawahan Layer (Sekretaris & Bendahara) -->
                 <div class="flex flex-wrap justify-center gap-12 md:gap-24">
-                    <!-- Sekretaris -->
                     <div class="flex gap-6 justify-center">
                         ${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}
                         ${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}
                     </div>
-                    
-                    <!-- Bendahara -->
                     <div class="flex gap-6 justify-center">
                         ${createDynamicCard('ben', "Bendahara", dataMain.ben)}
                     </div>
@@ -516,7 +512,7 @@
                     </div>
 
                     <div class="flex flex-col items-center w-full">
-                        <h3 class="font-bold text-white text-xs md:text-sm leading-tight text-center mb-1 px-1 group-hover:text-red-200 transition-colors">${name}</h3>
+                        <h3 class="font-bold text-white text-xs md:text-sm leading-tight line-clamp-2 text-center mb-1 px-1 group-hover:text-red-200 transition-colors">${name}</h3>
                         <p class="text-red-500 text-[10px] md:text-xs font-tech font-bold tracking-wider mb-2 group-hover:text-red-400 transition-colors">${nim || "-"}</p>
                         <p class="text-[10px] md:text-xs text-red-400 uppercase font-tech pt-3 border-t border-white/10 w-full tracking-wider group-hover:text-red-300 text-center">${label}</p>
                     </div>
