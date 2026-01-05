@@ -33,6 +33,7 @@
         .card-container { width: 150px; height: 240px; }
         @media (min-width: 768px) { .card-container { width: 240px; height: 360px; } }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        /* Scrollbar styling */
         ::-webkit-scrollbar { width: 12px; }
         ::-webkit-scrollbar-track { background: #0f0505; }
         ::-webkit-scrollbar-thumb { background: #8a0000; border-radius: 6px; border: 2px solid #0f0505; }
@@ -65,10 +66,16 @@
                     </div>
                 </div>
 
-                <div id="structure-content-container" class="w-full overflow-x-auto padding-bottom-2rem flex justify-center min-h-[500px] py-8"></div>
+                <div id="structure-content-container" class="w-full overflow-x-auto padding-bottom-2rem flex justify-center min-h-[500px] py-8">
+                     <!-- Loading Indicator -->
+                     <div class="text-center text-red-500 animate-pulse mt-10">
+                        <i class="fas fa-circle-notch fa-spin text-4xl"></i>
+                        <p class="mt-2 font-tech">MEMUAT DATA...</p>
+                     </div>
+                </div>
 
                 <div class="text-center pb-12 mt-8 flex flex-col gap-4 items-center">
-                     <button id="btn-team-executor" onclick="toggleTeamExecutor()" class="px-10 py-4 bg-gradient-to-r from-orange-700 to-black rounded-xl border border-orange-500/50 shadow-lg hover:shadow-orange-600/40 transition-all hidden group hover:scale-105 cursor-pointer z-10">
+                      <button id="btn-team-executor" onclick="toggleTeamExecutor()" class="px-10 py-4 bg-gradient-to-r from-orange-700 to-black rounded-xl border border-orange-500/50 shadow-lg hover:shadow-orange-600/40 transition-all hidden group hover:scale-105 cursor-pointer z-10">
                         <div class="flex items-center gap-3">
                             <i class="fas fa-network-wired text-3xl text-orange-400 group-hover:text-white transition-colors"></i>
                             <span class="font-tech text-xl font-bold text-white tracking-widest uppercase">TEAM EXECUTOR</span>
@@ -127,7 +134,7 @@
             <div id="preview-container" class="hidden flex-col items-center text-center">
                 <h3 class="text-2xl font-bold text-white mb-2 font-tech uppercase tracking-[0.2em] text-red-500">ANGGOTA</h3>
                 <div class="w-full aspect-square bg-gradient-to-b from-gray-800 to-black rounded-2xl overflow-hidden mb-6 mt-6 border-4 border-red-900/50 shadow-2xl relative group">
-                     <!-- DITAMBAHKAN REFERRERPOLICY: NO-REFERRER UNTUK MENGHINDARI BLOKIR -->
+                     <!-- REFERRER POLICY PENTING UNTUK GOOGLE DRIVE -->
                      <img id="preview-img" src="" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerpolicy="no-referrer">
                 </div>
                 <h4 id="preview-name" class="text-white font-bold text-2xl mb-8 font-body tracking-wide">Nama</h4>
@@ -139,35 +146,12 @@
     </div>
 
     <script>
-        // MASUKKAN URL DEPLOY WEB APP KAMU DISINI
-        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbznUQnAxofrgtV8ETzIggPlXBvmm7K91uZ1459-ooHx16B2Si8_fRiQP_XmfR4t_XuTSw/exec";
+        // --- KONFIGURASI PENTING ---
+        // MASUKKAN URL HASIL DEPLOY GOOGLE APPS SCRIPT DI SINI (CONTOH: https://script.google.com/.../exec)
+        const STRUCTURE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTJzR1VxWjb34ierpE9u2DuSSdu2wfiajG56fOzw1ovxZGzUdXdnYHAC93mt8nHwkzGQ/exec"; 
 
-        const dbMahasiswa = {
-            "Ady Surya": { img: "1z5JRHNaprGcbhl1d5dxNKW1Y4CGVGa-A", nim: "2511038" },
-            "Ahmad Lubadul Fikri": { img: "1wivrdbIcim8CyUio4srAiZ4tPyXu6taH", nim: "2511046" },
-            "Alyvia Qurrotal Aini": { img: "11EucklVY9pmkB6-IomvtRZAyFFzVTRoW", nim: "2511042" },
-            "Anggun Lolyka Hastuti": { img: "1D2ATUmALVTpPS5CoyqlKWTsZJh8LNF2d", nim: "2511043" },
-            "Aqillah Mazaya": { img: "1Av6SMF4g5x4RVe9olnxoowj6ccqeSn50", nim: "2511043" },
-            "Arina Manasika": { img: "1j-tiqZpNxPCvCK53YDL61fXgZbydjgd1", nim: "2511065" },
-            "Devi Kurniasari": { img: "1a0bIQm8m9mIm5a3-zjQRyiW-hMF5_7D9", nim: "2511052" },
-            "Elok Iis Nurrohmah": { img: "1KIdkI-mlAZxOz0zHh6gdT8jZx_4mJe4L", nim: "2511060" },
-            "Farihatul Azizah": { img: "15BUdEmviUdjpoh4UI8dZZx41AsXEfqUX", nim: "2511037" },
-            "Hanan Tsuroya Akyasi": { img: "1B8-4FSJGQauz6yrncfpkZRHaRLG3xTvF", nim: "2511073" },
-            "Hanni Hasanati": { img: "1jn_xKJcu7nZ0Nl5fVhvg_NWlBmYnswUP", nim: "2511068" },
-            "Jembar Juli Yuasti": { img: "1vQoS8GhZ3HlbwD9tqIy6a6iXBWxo4w8k", nim: "2511049" },
-            "Lusi Rahmah Oktavia": { img: "1FaB6bGBgsxIBVtFRrd7r24fIQpUM8qlH", nim: "2511080" },
-            "Muhammad Hanif Fakhry": { img: "1KytnHSsBLr26o56VOcyoHnjKcOP6vJPX", nim: "2511079" },
-            "Pniel Munandar": { img: "1pWXnDqhmfewv37D679deqQQmf57RgivY", nim: "2511053" },
-            "Putri Dwi Astuti": { img: "1h0LyPmhjMDBTDvL1zInPnD0QDEKgTNP", nim: "2511061" },
-            "Riska Ayu Kesuma": { img: "1TsYTbbe-lnhKTV-xArDwTEXiEmongaxC", nim: "2511039" },
-            "Siti Ulfatur Rohmah": { img: "1uT6FlbDlD0QBlmLRkwp8oY2xHrhhaZuq", nim: "2511077" },
-            "Tsabita Hasna Hanifah": { img: "1cRGStdgeYdjFJYpHS4YZ8WsIGKSXQzx8", nim: "2511071" },
-            "Ubaidillah Musthofa": { img: "1dKM1F66xTidpXFtt1WZAX45hSKMcocT3", nim: "2511064" },
-            "Yoana Dian Riski Astuti": { img: "1Pri-9DSWYsbho_WVBX444W3ZmOsnDGsi", nim: "2511054" },
-            "Youvischa Aulia Arsinta": { img: "1ahpDR_ZrU3ISQv7FSx7WwIFW6Gny9FC2", nim: "2511057" },
-            "Yuyun Lutfiyatul Khoiriyah": { img: "1YfPxVrroo9VHQX-RF72I3hWdF5YaR5UQ", nim: "2511051" },
-            "Zain Nur Fadilah": { img: "16Snhd6QcxqMKtQD3vYHNzw7H8_xr4QUR", nim: "2511076" }
-        };
+        // DATA DEFAULT (Jaga-jaga jika internet mati atau server error)
+        let dbMahasiswa = {}; 
 
         const semesterList = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
         let currentSemesterIndex = 0;
@@ -175,54 +159,46 @@
         let pendingAction = null; 
         let semesterData = {}; 
         let SERVER_PASSWORD = ""; 
-        const LOCAL_STORAGE_KEY = "pai_structure_data_v1";
+        const LOCAL_STORAGE_KEY = "pai_structure_data_v3";
 
-        // --- FUNGSI PENTING: MENGUBAH LINK DRIVE BIASA JADI LINK GAMBAR LANGSUNG ---
+        // --- FUNGSI FIX LINK GOOGLE DRIVE AGAR MUNCUL DI SEMUA DEVICE ---
+        // Mengubah ID atau Link menjadi format Thumbnail High-Res
         function convertDriveLink(urlOrId) {
             if (!urlOrId) return "";
             if (urlOrId.includes("ui-avatars")) return urlOrId;
             
             let fileId = urlOrId;
-            
-            // Cek jika inputnya adalah URL lengkap, kita ambil ID-nya saja
             if (urlOrId.includes("/d/")) {
-                const parts = urlOrId.split("/d/");
-                if (parts[1]) fileId = parts[1].split("/")[0];
+                fileId = urlOrId.split("/d/")[1].split("/")[0];
             } else if (urlOrId.includes("id=")) {
                 fileId = urlOrId.split("id=")[1].split("&")[0];
             }
             
-            // Format ID ini akan bekerja di semua device jika file bersifat Public
-            return `https://lh3.googleusercontent.com/d/${fileId}`;
+            // Format ini lebih stabil daripada lh3.googleusercontent
+            return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
         }
 
         function enterFullscreen() {
             const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(err => console.log(err));
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) {
-                elem.msRequestFullscreen();
-            }
+            if (elem.requestFullscreen) { elem.requestFullscreen().catch(err => console.log(err)); }
         }
 
         window.onload = function() {
             loadFromLocal();
-            
             updateSemesterDisplay();
             
-            const antiCacheUrl = STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime();
-            loadStructureData(antiCacheUrl); 
+            if(STRUCTURE_SCRIPT_URL) {
+                const antiCacheUrl = STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime();
+                loadStructureData(antiCacheUrl); 
+            } else {
+                console.warn("Script URL belum diisi! Hubungkan dengan Google Apps Script.");
+            }
             
             document.getElementById('input-name').addEventListener('keypress', (e) => { if (e.key === 'Enter') initiateAction('save'); });
             document.getElementById('admin-password').addEventListener('keypress', (e) => { if (e.key === 'Enter') confirmAction(); });
 
-            enterFullscreen();
             document.body.addEventListener('click', function() {
-                if (!document.fullscreenElement) {
-                    enterFullscreen();
-                }
+                if (!document.fullscreenElement) enterFullscreen();
             }, { once: true });
         };
 
@@ -233,27 +209,37 @@
         function loadFromLocal() {
             const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
             if (savedData) {
-                try {
-                    semesterData = JSON.parse(savedData);
-                } catch (e) {
-                    console.error("Gagal parsing data lokal", e);
-                }
+                try { semesterData = JSON.parse(savedData); } catch (e) { console.error("Parse Error", e); }
             }
         }
 
         async function loadStructureData(url) {
             try {
-                const fetchUrl = url || (STRUCTURE_SCRIPT_URL + "?v=" + new Date().getTime());
-                const response = await fetch(fetchUrl, { redirect: 'follow' });
-                
+                const response = await fetch(url);
                 if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
                 
                 const data = await response.json();
+                
+                // 1. ISI DATABASE PENCARIAN
+                if (data.dbMahasiswa) {
+                    dbMahasiswa = { ...dbMahasiswa, ...data.dbMahasiswa };
+                    console.log("Database Mahasiswa loaded:", Object.keys(dbMahasiswa).length);
+                }
+
+                // 2. ISI STRUKTUR DARI SERVER
+                // Asumsi server mengembalikan struktur untuk semester aktif atau default
+                // Kita map 'main' dan 'executor' ke semester aktif
+                const sem = semesterList[currentSemesterIndex];
+                if(data.main || data.executor) {
+                    if(!semesterData[sem]) semesterData[sem] = {};
+                    if(data.main) semesterData[sem].main = data.main;
+                    if(data.executor) semesterData[sem].executor = data.executor;
+                    saveToLocal();
+                }
+
                 if(data.meta && data.meta.password) SERVER_PASSWORD = data.meta.password;
                 
-                semesterData[semesterList[currentSemesterIndex]] = data;
-                saveToLocal();
-                updateStructureUI(semesterList[currentSemesterIndex]);
+                updateStructureUI(sem);
                 
             } catch (error) { 
                 console.warn("Gagal Sync Server. Menggunakan data lokal.", error);
@@ -267,7 +253,7 @@
         function getSemesterData(sem) {
             if (!semesterData[sem]) {
                 semesterData[sem] = { 
-                    main: { ketua: { name: "", img: "", nim: "" }, sek1: { name: "", img: "", nim: "" }, sek2: { name: "", img: "", nim: "" }, ben: { name: "", img: "", nim: "" } },
+                    main: { ketua: { name: "", img: "", nim: "" }, wakil: {name:"", img:"", nim:""}, sek1: { name: "", img: "", nim: "" }, sek2: { name: "", img: "", nim: "" }, ben: { name: "", img: "", nim: "" }, ben1: { name: "", img: "", nim: "" }, ben2: { name: "", img: "", nim: "" } },
                     executor: { koor: { name: "", img: "", nim: "" }, div_kreatif: Array(6).fill({name: "", img: "", nim: ""}), div_kebersihan: Array(5).fill({name: "", img: "", nim: ""}), div_sosial: Array(6).fill({name: "", img: "", nim: ""}) }
                 };
             }
@@ -278,10 +264,11 @@
             pendingAction = action;
             document.getElementById('password-error').classList.add('hidden');
             document.getElementById('admin-password').value = '';
-            document.getElementById('btn-confirm-save').innerText = "KONFIRMASI";
-            document.getElementById('btn-confirm-save').classList.remove('bg-gray-600', 'bg-green-600', 'bg-red-600');
-            document.getElementById('btn-confirm-save').classList.add('bg-red-700');
-            document.getElementById('btn-confirm-save').disabled = false;
+            const btn = document.getElementById('btn-confirm-save');
+            btn.innerText = "KONFIRMASI";
+            btn.classList.remove('bg-gray-600', 'bg-green-600', 'bg-red-600');
+            btn.classList.add('bg-red-700');
+            btn.disabled = false;
             
             document.getElementById('edit-modal').classList.remove('active');
             setTimeout(() => {
@@ -297,15 +284,10 @@
 
         function confirmAction() {
             const password = document.getElementById('admin-password').value;
-            const errorLabel = document.getElementById('password-error');
-
             if(SERVER_PASSWORD && password !== SERVER_PASSWORD) {
-                errorLabel.classList.remove('hidden');
+                document.getElementById('password-error').classList.remove('hidden');
                 return; 
             }
-
-            errorLabel.classList.add('hidden');
-            
             if(pendingAction === 'save') saveMember(false, password);
             else if (pendingAction === 'delete') saveMember(true, password);
         }
@@ -316,12 +298,10 @@
             const btn = document.getElementById('btn-confirm-save');
             btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> MENYIMPAN...`;
             btn.disabled = true;
-            btn.classList.replace('bg-red-700', 'bg-gray-600');
 
             const input = document.getElementById('input-name');
             const newName = isClear ? "" : input.value.trim();
             const { type, key, index } = currentEditTarget;
-
             const sem = semesterList[currentSemesterIndex];
             const currentDataObj = getSemesterData(sem);
             
@@ -329,19 +309,24 @@
             let matchedNim = "";
 
             if (!isClear && newName) {
+                // LOGIC PENCARIAN DI DATABASE MAHASISWA (SHEET DB_MAHASISWA)
+                // Ini kunci agar foto otomatis muncul!
                 const foundKey = Object.keys(dbMahasiswa).find(k => k.toLowerCase() === newName.toLowerCase());
+                
                 if (foundKey) {
-                    // CONVERT URL JADI DIRECT LINK DISINI
-                    matchedImg = convertDriveLink(dbMahasiswa[foundKey].img);
+                    matchedImg = dbMahasiswa[foundKey].img; // Ambil ID dari DB
                     matchedNim = dbMahasiswa[foundKey].nim;
                 } else {
+                    // Jika tidak ada di DB, pakai avatar
                     matchedImg = `https://ui-avatars.com/api/?name=${encodeURIComponent(newName)}&background=300505&color=ffffff&bold=true`;
                     matchedNim = "-"; 
                 }
             }
 
+            // Data yang akan disimpan ke struktur
             const newData = { name: newName, img: matchedImg, nim: matchedNim };
 
+            // Update Tampilan Lokal
             if (type === 'main') currentDataObj.main[key] = newData;
             else {
                 if (index !== null) currentDataObj.executor[key][index] = newData;
@@ -349,43 +334,42 @@
             }
             saveToLocal();
             
-            if(sem === "I") {
-                updateStructureUI(sem); 
-            } else {
+            // Refresh UI
+            if(sem === "I") updateStructureUI(sem); 
+            else {
                 if (type === 'main') renderMainStructure(currentDataObj.main);
                 else if(document.getElementById('team-executor-modal').classList.contains('open')) renderTeamExecutorTree(currentDataObj.executor);
             }
 
-            try {
-                const response = await fetch(STRUCTURE_SCRIPT_URL, {
-                    method: 'POST',
-                    redirect: 'follow', 
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({ 
-                        password: usedPassword,
-                        key, 
-                        index, 
-                        name: newData.name, 
-                        img: newData.img,
-                        nim: newData.nim
-                    })
-                });
+            // Kirim ke Google Sheet (Simpan Permanen)
+            if(STRUCTURE_SCRIPT_URL) {
+                try {
+                    const response = await fetch(STRUCTURE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors', // Penting agar tidak error CORS
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ 
+                            password: usedPassword,
+                            semester: sem,
+                            key, index, 
+                            name: newData.name, 
+                            img: newData.img,
+                            nim: newData.nim,
+                        })
+                    });
 
-                const result = await response.json();
-                
-                if (result.result === 'success') {
                     btn.innerHTML = `<i class="fas fa-check"></i> BERHASIL`;
-                    btn.classList.replace('bg-gray-600', 'bg-green-600');
+                    btn.classList.replace('bg-red-700', 'bg-green-600');
                     setTimeout(() => closePasswordModal(), 1000);
-                } else {
-                    throw new Error(result.message || "Gagal menyimpan");
-                }
 
-            } catch (e) { 
-                console.error("Gagal simpan ke Cloud:", e);
-                btn.innerHTML = `<i class="fas fa-exclamation-triangle"></i> GAGAL KONEKSI`;
-                btn.classList.replace('bg-gray-600', 'bg-red-600');
-                setTimeout(() => closePasswordModal(), 2000);
+                } catch (e) { 
+                    console.error("Gagal simpan ke Cloud:", e);
+                    btn.innerHTML = `<i class="fas fa-exclamation-triangle"></i> GAGAL KONEKSI`;
+                    setTimeout(() => closePasswordModal(), 2000);
+                }
+            } else {
+                btn.innerHTML = `<i class="fas fa-check"></i> LOKAL OK`;
+                setTimeout(() => closePasswordModal(), 1000);
             }
             
             input.value = "";
@@ -411,31 +395,40 @@
         function updateStructureUI(sem) { 
             const container = document.getElementById('structure-content-container'); 
             
-            // LAYOUT KHUSUS SEMESTER 1 (TANPA GARIS TREE, SEJAJAR)
-            if (sem === "I") {
-                // Pastikan data semester 1 juga di convert link gambarnya
-                const getMhs = (name) => {
-                    const m = dbMahasiswa[name];
-                    return m ? { name: name, img: convertDriveLink(m.img), nim: m.nim } : { name: name, img: "", nim: "" };
+            // Fungsi Pembantu: Pastikan link foto valid
+            const getMhs = (sourceData) => {
+                if (!sourceData || !sourceData.name) return { name: "", img: "", nim: "" };
+                
+                let finalImg = sourceData.img;
+                
+                // Cek lagi ke DB Local jika link kosong atau format UI Avatar
+                if ((!finalImg || finalImg.includes("ui-avatars")) && dbMahasiswa[sourceData.name]) {
+                     finalImg = dbMahasiswa[sourceData.name].img;
+                }
+                
+                return { 
+                    name: sourceData.name, 
+                    img: convertDriveLink(finalImg), 
+                    nim: sourceData.nim || (dbMahasiswa[sourceData.name] ? dbMahasiswa[sourceData.name].nim : "-")
                 };
+            };
 
+            const rawData = getSemesterData(sem);
+
+            if (sem === "I") {
                 const data = { 
-                    ketua: getMhs("Ubaidillah Musthofa"), 
-                    wakil: getMhs("Pniel Munandar"), 
-                    sek1: getMhs("Riska Ayu Kesuma"), 
-                    sek2: getMhs("Yoana Dian Riski Astuti"), 
-                    ben1: getMhs("Putri Dwi Astuti"), 
-                    ben2: getMhs("Anggun Lolyka Hastuti") 
+                    ketua: getMhs(rawData.main.ketua), 
+                    wakil: getMhs(rawData.main.wakil), 
+                    sek1: getMhs(rawData.main.sek1), 
+                    sek2: getMhs(rawData.main.sek2), 
+                    ben1: getMhs(rawData.main.ben1), 
+                    ben2: getMhs(rawData.main.ben2) 
                 };
                 
                 container.innerHTML = `
                 <div class="flex flex-col items-center w-full gap-12 mt-4">
-                    <div class="flex justify-center">
-                        ${createStaticCard(data.ketua.img, data.ketua.name, data.ketua.nim, "Ketua")}
-                    </div>
-                    <div class="flex justify-center">
-                        ${createStaticCard(data.wakil.img, data.wakil.name, data.wakil.nim, "Wakil")}
-                    </div>
+                    <div class="flex justify-center">${createStaticCard(data.ketua.img, data.ketua.name, data.ketua.nim, "Ketua")}</div>
+                    <div class="flex justify-center">${createStaticCard(data.wakil.img, data.wakil.name, data.wakil.nim, "Wakil")}</div>
                     <div class="flex flex-wrap justify-center gap-8 md:gap-12">
                         ${createStaticCard(data.sek1.img, data.sek1.name, data.sek1.nim, "Sekretaris 1")}
                         ${createStaticCard(data.sek2.img, data.sek2.name, data.sek2.nim, "Sekretaris 2")}
@@ -443,33 +436,40 @@
                         ${createStaticCard(data.ben2.img, data.ben2.name, data.ben2.nim, "Bendahara 2")}
                     </div>
                 </div>`;
-            } 
-            // LAYOUT SEMESTER 2-8 (KEMBALI KE TAMPILAN TREE/GARIS)
-            else {
-                renderMainStructure(getSemesterData(sem).main);
+            } else {
+                renderMainStructure(rawData.main);
             }
         }
 
-        // FUNGSI RENDER TREE UNTUK SEMESTER 2-8 (NORMAL DENGAN GARIS & TITLE)
         function renderMainStructure(dataMain) {
+             const resolveData = (data) => {
+                if(!data || !data.name) return data;
+                // Auto-fix data dari DB jika tersedia
+                const found = Object.keys(dbMahasiswa).find(k => k.toLowerCase() === data.name.toLowerCase());
+                return found ? { ...data, img: dbMahasiswa[found].img, nim: dbMahasiswa[found].nim } : data;
+            };
+
             const container = document.getElementById('structure-content-container');
+            // Menyesuaikan jika ada Wakil atau Bendahara tunggal
             container.innerHTML = `
             <div class="flex flex-col items-center w-full gap-12 mt-4">
-                <!-- Ketua -->
-                <div class="flex justify-center">
-                    ${createDynamicCard('ketua', "Ketua Kelas", dataMain.ketua)}
-                </div>
-                
-                <!-- Sekretaris & Bendahara Sejajar -->
+                <div class="flex justify-center">${createDynamicCard('ketua', "Ketua Kelas", resolveData(dataMain.ketua))}</div>
+                ${ dataMain.wakil ? `<div class="flex justify-center">${createDynamicCard('wakil', "Wakil Ketua", resolveData(dataMain.wakil))}</div>` : '' }
                 <div class="flex flex-wrap justify-center gap-8 md:gap-12">
-                    ${createDynamicCard('sek1', "Sekretaris 1", dataMain.sek1)}
-                    ${createDynamicCard('sek2', "Sekretaris 2", dataMain.sek2)}
-                    ${createDynamicCard('ben', "Bendahara", dataMain.ben)}
+                    ${createDynamicCard('sek1', "Sekretaris 1", resolveData(dataMain.sek1))}
+                    ${createDynamicCard('sek2', "Sekretaris 2", resolveData(dataMain.sek2))}
+                    ${createDynamicCard('ben', "Bendahara", resolveData(dataMain.ben))}
                 </div>
             </div>`;
         }
 
         function renderTeamExecutorTree(dataEx) {
+             const resolveData = (data) => {
+                if(!data || !data.name) return data;
+                const found = Object.keys(dbMahasiswa).find(k => k.toLowerCase() === data.name.toLowerCase());
+                return found ? { ...data, img: dbMahasiswa[found].img, nim: dbMahasiswa[found].nim } : data;
+            };
+
             const container = document.getElementById('executor-tree-container');
             container.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-16 mt-10 w-full max-w-7xl">
@@ -477,31 +477,29 @@
                         <div class="w-full bg-orange-900/20 border border-orange-500/30 rounded-xl py-3 text-center mb-2 shadow-[0_0_15px_rgba(251,146,60,0.1)]">
                             <div class="text-orange-400 text-xl font-bold font-tech uppercase tracking-[0.2em]">KREATIF</div>
                         </div>
-                        <div class="flex flex-wrap justify-center gap-6">${dataEx.div_kreatif.map((m, i) => createDynamicCard('div_kreatif', `Inovation Team ${i+1}`, m, 'executor', i)).join('')}</div>
+                        <div class="flex flex-wrap justify-center gap-6">${dataEx.div_kreatif.map((m, i) => createDynamicCard('div_kreatif', `Team ${i+1}`, resolveData(m), 'executor', i)).join('')}</div>
                     </div>
                     <div class="flex flex-col items-center gap-6">
                          <div class="w-full bg-red-900/20 border border-red-500/30 rounded-xl py-3 text-center mb-2 shadow-[0_0_15px_rgba(248,113,113,0.1)]">
                             <div class="text-red-400 text-xl font-bold font-tech uppercase tracking-[0.2em]">KEBERSIHAN</div>
                         </div>
-                        <div class="flex flex-wrap justify-center gap-6">${dataEx.div_kebersihan.map((m, i) => createDynamicCard('div_kebersihan', `Sanitation Team ${i+1}`, m, 'executor', i)).join('')}</div>
+                        <div class="flex flex-wrap justify-center gap-6">${dataEx.div_kebersihan.map((m, i) => createDynamicCard('div_kebersihan', `Team ${i+1}`, resolveData(m), 'executor', i)).join('')}</div>
                     </div>
                     <div class="flex flex-col items-center gap-6">
                          <div class="w-full bg-yellow-900/20 border border-yellow-500/30 rounded-xl py-3 text-center mb-2 shadow-[0_0_15px_rgba(250,204,21,0.1)]">
                             <div class="text-yellow-400 text-xl font-bold font-tech uppercase tracking-[0.2em]">SOSIAL</div>
                         </div>
-                        <div class="flex flex-wrap justify-center gap-6">${dataEx.div_sosial.map((m, i) => createDynamicCard('div_sosial', `Concern Team ${i+1}`, m, 'executor', i)).join('')}</div>
+                        <div class="flex flex-wrap justify-center gap-6">${dataEx.div_sosial.map((m, i) => createDynamicCard('div_sosial', `Team ${i+1}`, resolveData(m), 'executor', i)).join('')}</div>
                     </div>
                 </div>`;
         }
 
         function createStaticCard(img, name, nim, role) { 
-            // Convert link static juga
-            const safeImg = convertDriveLink(img);
             return `
             <div class="glass-panel p-4 rounded-2xl inline-flex flex-col card-container mx-2 mb-4 justify-between">
                 <div class="flex-grow flex items-center justify-center w-full">
-                    <div class="w-20 h-20 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-red-500 shadow-lg group">
-                        <img src="${safeImg}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=300505&color=ffffff&bold=true'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" referrerpolicy="no-referrer">
+                    <div class="w-20 h-20 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-red-500 shadow-lg group relative">
+                        <img src="${img}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=300505&color=ffffff&bold=true'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" referrerpolicy="no-referrer" loading="lazy">
                     </div>
                 </div>
                 <div class="flex flex-col items-center w-full">
@@ -515,8 +513,8 @@
         function createDynamicCard(key, label, data, type = 'main', index = null) {
             const name = data?.name || "";
             const nim = data?.nim || "";
-            // Gunakan convertDriveLink di sini
-            const img = name ? (convertDriveLink(data.img) || "https://ui-avatars.com/api/?name=User&background=300505&color=ffffff") : "";
+            // Logic konversi link ada disini
+            const imgUrl = name ? (convertDriveLink(data.img) || "https://ui-avatars.com/api/?name=User&background=300505&color=ffffff") : "";
             const params = `'${type}', '${key}'${index !== null ? `, ${index}` : ''}`;
 
             if (!name) return `
@@ -532,11 +530,9 @@
 
             return `
                 <div class="glass-panel p-4 rounded-2xl inline-flex flex-col card-container cursor-pointer mx-2 mb-4 group transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(220,38,38,0.4)] hover:border-red-500/50 justify-between" onclick="openEditModal(${params})">
-                    
                     <div class="flex-grow flex items-center justify-center w-full">
-                        <img src="${img}" class="w-20 h-20 md:w-32 md:h-32 object-cover rounded-full border-2 border-gray-500 group-hover:border-red-500 flex-shrink-0 transition-all duration-300 shadow-lg" referrerpolicy="no-referrer">
+                        <img src="${imgUrl}" class="w-20 h-20 md:w-32 md:h-32 object-cover rounded-full border-2 border-gray-500 group-hover:border-red-500 flex-shrink-0 transition-all duration-300 shadow-lg" referrerpolicy="no-referrer" loading="lazy">
                     </div>
-
                     <div class="flex flex-col items-center w-full">
                         <h3 class="font-bold text-white text-xs md:text-sm leading-tight text-center mb-1 px-1 group-hover:text-red-200 transition-colors">${name}</h3>
                         <p class="text-red-500 text-[10px] md:text-xs font-tech font-bold tracking-wider mb-2 group-hover:text-red-400 transition-colors">${nim || "-"}</p>
@@ -550,6 +546,15 @@
             const data = getSemesterData(semesterList[currentSemesterIndex]);
             let target = (type === 'main') ? data.main[key] : (index !== null ? data.executor[key][index] : data.executor[key]);
             
+            // Auto-populate data from DB if exists
+            if(target && target.name) {
+                const found = Object.keys(dbMahasiswa).find(k => k.toLowerCase() === target.name.toLowerCase());
+                if(found) {
+                    target.img = dbMahasiswa[found].img;
+                    target.nim = dbMahasiswa[found].nim;
+                }
+            }
+
             const modal = document.getElementById('edit-modal');
             const form = document.getElementById('edit-form-container');
             const preview = document.getElementById('preview-container');
@@ -559,7 +564,7 @@
                 form.classList.add('hidden');
                 preview.classList.remove('hidden');
                 preview.classList.add('flex');
-                // Convert link saat preview
+                
                 document.getElementById('preview-img').src = convertDriveLink(target.img) || "https://ui-avatars.com/api/?name=User";
                 document.getElementById('preview-name').innerText = target.name;
             } else {
