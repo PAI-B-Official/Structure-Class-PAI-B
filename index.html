@@ -85,9 +85,14 @@
         @media (min-width: 768px) { .executor-card { width: 100% !important; height: auto !important; aspect-ratio: 9/14; } }
 
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f0505; }
-        ::-webkit-scrollbar-thumb { background: #8a0000; border-radius: 4px; }
+        
+        /* SCROLLBAR HANYA UNTUK LAPTOP/DESKTOP */
+        @media (min-width: 768px) {
+            ::-webkit-scrollbar { width: 8px; }
+            ::-webkit-scrollbar-track { background: #0f0505; }
+            ::-webkit-scrollbar-thumb { background: #8a0000; border-radius: 4px; }
+        }
+
         .blur-content { filter: blur(5px); pointer-events: none; user-select: none; transition: filter 0.2s ease; }
 
         /* CROPPER STYLE OVERRIDES */
